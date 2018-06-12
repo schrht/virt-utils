@@ -66,7 +66,7 @@ Shell:
 For collaborators:
 1. `git clone git@github.com:SCHEN2015/virt-utils.git`
 2. Modify the code and commit the change
-3. `git pull` before push your commits
+3. `git pull --rebase` before push your commits
 4. `git push`
 
 For others:
