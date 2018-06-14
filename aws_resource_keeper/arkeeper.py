@@ -4,14 +4,18 @@
 Use this script to find unused AWS resources.
 
 History:
-v1.0    2018-06-13  charles.shih  Finish basic the functions.
-v1.1    2018-06-14  charles.shih  Read user configuration from yaml file.
+v1.0    2018-06-13  charles.shih  Finish basic the functions
+v1.1    2018-06-14  charles.shih  Read user configuration from yaml file
+v1.2    2018-06-14  charles.shih  Support email notificaiton
 """
 
 import boto3
 import prettytable
 import yaml
 import os
+import smtplib
+from email.mime.text import MIMEText
+from email.header import Header
 
 
 class AwsResourceCollector():
@@ -98,7 +102,74 @@ class AwsResourceCollector():
         return None
 
 
+class AwsResourceReporter():
+    """Reporter with html and email notification supported."""
+
+    smtp_server = 'smtp.corp.redhat.com'
+    smtp_port = '25'
+    smtp_user = smtp_pass = ''
+    sender = 'cheshi@redhat.com'
+    receivers = ['cheshi@redhat.com']
+    email_subject = '[TEST] AWS Resource Report'
+
+    def __init__(self):
+        """Read user configuration from yaml file."""
+        try:
+            with open(os.path.expanduser('~/.arkeeper.yaml'), 'r') as f:
+                yaml_dict = yaml.load(f)
+
+            if self.__class__.__name__ in yaml_dict:
+                user_config = yaml_dict[self.__class__.__name__]
+
+                if 'SmtpServer' in user_config:
+                    self.smtp_server = user_config['SmtpServer']
+
+                if 'SmtpPort' in user_config:
+                    self.smtp_port = user_config['SmtpPort']
+
+                if 'SmtpUser' in user_config:
+                    self.smtp_user = user_config['SmtpUser']
+
+                if 'SmtpPass' in user_config:
+                    self.smtp_pass = user_config['SmtpPass']
+
+                if 'Sender' in user_config:
+                    self.sender = user_config['Sender']
+
+                if 'Receivers' in user_config:
+                    self.receivers = user_config['Receivers']
+
+                if 'EmailSubject' in user_config:
+                    self.email_subject = user_config['EmailSubject']
+
+        except Exception as err:
+            print 'WARNING: encounter an error while parsing user config.'
+            print err
+
+    def send_email(self, mail_msg='Message body...'):
+        """Send out the report as email notification."""
+        subtype = 'plain'  # 'html' or 'plain'
+        message = MIMEText(mail_msg, subtype, 'utf-8')
+        message['Subject'] = Header(self.email_subject, 'utf-8')
+        message['From'] = Header(self.sender, 'ascii')
+        message['To'] = Header(str.join(',', self.receivers), 'ascii')
+
+        try:
+            smtpObj = smtplib.SMTP()
+            smtpObj.connect(self.smtp_server, self.smtp_port)
+            if self.smtp_user and self.smtp_pass:
+                smtpObj.login(self.smtp_user, self.smtp_pass)
+            smtpObj.sendmail(self.sender, self.receivers, message.as_string())
+            print 'NOTE: Email notification sent!'
+        except smtplib.SMTPException:
+            print 'ERROR: error while sending email notification.'
+
+
 if __name__ == "__main__":
-    collector = AwsResourceCollector()
-    collector.scan_all()
-    print collector.instance_table
+    # collector = AwsResourceCollector()
+    # collector.scan_all()
+    # table= collector.instance_table.get_string()
+    # print table
+
+    reporter = AwsResourceReporter()
+    reporter.send_email()
