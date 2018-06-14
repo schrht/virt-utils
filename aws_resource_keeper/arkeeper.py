@@ -5,25 +5,40 @@ Use this script to find unused AWS resources.
 
 History:
 v1.0    2018-06-13  charles.shih  Finish basic the functions.
+v1.1    2018-06-14  charles.shih  Read user configuration from yaml file.
 """
 
 import boto3
 import prettytable
+import yaml
+import os
 
 
 class AwsResourceCollector():
     """Collect unused resources for AWS."""
 
+    instance_table = None
+    region_list = ['us-west-2']
+    keyname_list = None
+
     def __init__(self):
-        """Do some initialization."""
-        self.instance_table = None
-        self.region_list = [
-            'ap-south-1', 'eu-west-3', 'eu-west-2', 'eu-west-1',
-            'ap-northeast-3', 'ap-northeast-2', 'ap-northeast-1', 'sa-east-1',
-            'ca-central-1', 'ap-southeast-1', 'ap-southeast-2', 'eu-central-1',
-            'us-east-1', 'us-east-2', 'us-west-1', 'us-west-2'
-        ]
-        self.keyname_list = ['cheshi', 'linl', 'xiliang']
+        """Read user configuration from yaml file."""
+        try:
+            with open(os.path.expanduser('~/.arkeeper.yaml'), 'r') as f:
+                yaml_dict = yaml.load(f)
+
+            if self.__class__.__name__ in yaml_dict:
+                user_config = yaml_dict[self.__class__.__name__]
+
+                if 'RegionList' in user_config:
+                    self.region_list = user_config['RegionList']
+
+                if 'KeynameList' in user_config:
+                    self.keyname_list = user_config['KeynameList']
+
+        except Exception as err:
+            print 'WARNING: encounter an error while parsing user config.'
+            print err
 
     def scan_all(self):
         """Scan all types of resources from all specified regions."""
