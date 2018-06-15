@@ -103,6 +103,15 @@ class AwsResourceCollector():
 
         return None
 
+    def get_instance_table(self, format='string'):
+        """Get instance table in specified format or as PrettyTable object."""
+        if format == 'string':
+            return self.instance_table.get_string()
+        elif format == 'html':
+            return self.instance_table.get_html_string()
+        else:
+            return self.instance_table
+
 
 class AwsResourceReporter():
     """Reporter with html and email notification supported."""
@@ -192,25 +201,24 @@ class AwsResourceReporter():
 
         print 'NOTE: html file dumpped! (%s)' % file
 
-
     def html_send(self):
         """Send html report as an Email notification."""
         self.send_email(mail_msg=self.html_report, subtype='html')
 
 
 if __name__ == "__main__":
-    # collector = AwsResourceCollector()
-    # collector.scan_all()
-    # table= collector.instance_table.get_string()
-    # print table
+    collector = AwsResourceCollector()
+    collector.scan_all()
 
     reporter = AwsResourceReporter()
-    my_text = """\
-    This is the content...
-    """
-    reporter.html_append(my_text)
-    reporter.html_append(my_text)
-    reporter.html_append(my_text)
+    reporter.html_append(
+        '<h1 style="color:red">Did you forget something?</h1>')
+    reporter.html_append('<h2>Running Instance</h2>')
+    reporter.html_append(collector.get_instance_table(format='html'))
+    reporter.html_append('<h3>Searched Regions: %s</h3>' % str.join(
+        ', ', collector.region_list))
+    reporter.html_append('<h3>Filtered Keynames: %s</h3>' % str.join(
+        ', ', collector.keyname_list))
 
     reporter.html_dump()
     reporter.html_send()
