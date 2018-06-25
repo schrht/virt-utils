@@ -9,6 +9,7 @@ v1.1    2018-06-14  charles.shih  Read user configuration from yaml file
 v1.2    2018-06-14  charles.shih  Support email notificaiton
 v1.3    2018-06-14  charles.shih  Support HTML report as dumpped file
 v1.4    2018-06-14  charles.shih  Support HTML report as email notification
+v1.4.1  2018-06-25  charles.shih  Bugfix for no unused resource found
 """
 
 import boto3
@@ -105,6 +106,10 @@ class AwsResourceCollector():
 
     def get_instance_table(self, format='string'):
         """Get instance table in specified format or as PrettyTable object."""
+
+        if type(self.instance_table) is not prettytable.PrettyTable:
+            return ''
+
         if format == 'string':
             return self.instance_table.get_string()
         elif format == 'html':
@@ -210,15 +215,20 @@ if __name__ == "__main__":
     collector = AwsResourceCollector()
     collector.scan_all()
 
-    reporter = AwsResourceReporter()
-    reporter.html_append(
-        '<h1 style="color:red">Did you forget something?</h1>')
-    reporter.html_append('<h2>Running Instance</h2>')
-    reporter.html_append(collector.get_instance_table(format='html'))
-    reporter.html_append('<h3>Searched Regions: %s</h3>' % str.join(
-        ', ', collector.region_list))
-    reporter.html_append('<h3>Filtered Keynames: %s</h3>' % str.join(
-        ', ', collector.keyname_list))
+    table = collector.get_instance_table(format='html')
 
-    reporter.html_dump()
-    reporter.html_send()
+    if table:
+        reporter = AwsResourceReporter()
+        reporter.html_append(
+            '<h1 style="color:red">Did you forget something?</h1>')
+        reporter.html_append('<h2>Running Instance</h2>')
+        reporter.html_append()
+        reporter.html_append('<h3>Searched Regions: %s</h3>' % str.join(
+            ', ', collector.region_list))
+        reporter.html_append('<h3>Filtered Keynames: %s</h3>' % str.join(
+            ', ', collector.keyname_list))
+
+        reporter.html_dump()
+        reporter.html_send()
+    else:
+        print 'NOTE: No unused resource found.'
