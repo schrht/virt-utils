@@ -11,6 +11,7 @@ v1.3    2018-06-14  charles.shih  Support HTML report as dumpped file
 v1.4    2018-06-14  charles.shih  Support HTML report as email notification
 v1.4.1  2018-06-25  charles.shih  Bugfix for no unused resource found
 v1.5    2018-06-25  charles.shih  Get available regions when they not specified
+v1.5.1  2018-06-25  charles.shih  Bugfix for generating html report
 """
 
 import boto3
@@ -232,7 +233,7 @@ if __name__ == "__main__":
         reporter.html_append(
             '<h1 style="color:red">Did you forget something?</h1>')
         reporter.html_append('<h2>Running Instance</h2>')
-        reporter.html_append()
+        reporter.html_append(table)
         reporter.html_append('<h3>Searched Regions: %s</h3>' % str.join(
             ', ', collector.region_list))
         reporter.html_append('<h3>Filtered Keynames: %s</h3>' % str.join(
