@@ -10,6 +10,7 @@ v1.2    2018-06-14  charles.shih  Support email notificaiton
 v1.3    2018-06-14  charles.shih  Support HTML report as dumpped file
 v1.4    2018-06-14  charles.shih  Support HTML report as email notification
 v1.4.1  2018-06-25  charles.shih  Bugfix for no unused resource found
+v1.5    2018-06-25  charles.shih  Get available regions when they not specified
 """
 
 import boto3
@@ -25,7 +26,7 @@ class AwsResourceCollector():
     """Collect unused resources for AWS."""
 
     instance_table = None
-    region_list = ['us-west-2']
+    region_list = []
     keyname_list = None
 
     def __init__(self):
@@ -47,8 +48,17 @@ class AwsResourceCollector():
             print 'WARNING: encounter an error while parsing user config.'
             print err
 
+    def _get_available_regions(self):
+        """Get available regions."""
+        session = boto3.session.Session()
+        available_regions = session.get_available_regions('ec2')
+        return available_regions
+
     def scan_all(self):
         """Scan all types of resources from all specified regions."""
+        if not self.region_list:
+            self.region_list = self._get_available_regions()
+
         for region in self.region_list:
             self.scan_instance(region=region)
 
@@ -69,6 +79,7 @@ class AwsResourceCollector():
         """
         instance_list = []
 
+        print 'NOTE: Scan running instance in region "%s".' % region
         ec2_resource = boto3.resource('ec2', region_name=region)
         running_instances = ec2_resource.instances.filter(
             Filters=[{
@@ -106,7 +117,6 @@ class AwsResourceCollector():
 
     def get_instance_table(self, format='string'):
         """Get instance table in specified format or as PrettyTable object."""
-
         if type(self.instance_table) is not prettytable.PrettyTable:
             return ''
 
