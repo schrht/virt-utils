@@ -15,6 +15,7 @@ v1.5.1  2018-06-25  charles.shih  Bugfix for generating html report
 v1.5.2  2018-06-26  charles.shih  Modify the words in HTML report
 v1.5.3  2018-07-02  charles.shih  Modify the output words
 v1.6    2018-07-02  charles.shih  Read ./arkeeper.yaml first
+v1.6.1  2018-07-02  charles.shih  Redesign the level of problems
 """
 
 import boto3
@@ -56,8 +57,9 @@ class AwsResourceCollector():
                     self.keyname_list = user_config['KeynameList']
 
         except Exception as err:
-            print 'WARNING: encounter an error while parsing user config.'
+            print 'ERROR: error while parsing "%s".' % (config_file)
             print err
+            exit(1)
 
     def _get_available_regions(self):
         """Get available regions."""
@@ -190,8 +192,9 @@ class AwsResourceReporter():
                 self.html_report = f.read()
 
         except Exception as err:
-            print 'WARNING: encounter an error while parsing user config.'
+            print 'ERROR: error while parsing "%s".' % (config_file)
             print err
+            exit(1)
 
     def send_email(self, mail_msg='Message body...', subtype='plain'):
         """Send out the report as email notification."""
@@ -208,14 +211,19 @@ class AwsResourceReporter():
             smtpObj.sendmail(self.sender, self.receivers, message.as_string())
             print 'NOTE: Email notification sent!'
         except smtplib.SMTPException as err:
-            print 'ERROR: error while sending email notification.'
+            print 'WARNING: error while sending email notification.'
             print err
 
     def html_append(self, content):
         """Append content to the html report."""
-        # The content should be inserted before '</body>'
-        origin = self.html_report
-        self.html_report = origin.replace('</body>', content + '\n</body>', 1)
+        try:
+            # The content should be inserted before '</body>'
+            origin = self.html_report
+            self.html_report = origin.replace('</body>', content + '\n</body>',
+                                              1)
+        except Exception as err:
+            print 'WARNING: error while appending to the html report.'
+            print err
 
     def html_get_string(self):
         """Get html report as string."""
