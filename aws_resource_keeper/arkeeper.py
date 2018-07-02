@@ -14,6 +14,7 @@ v1.5    2018-06-25  charles.shih  Get available regions when they not specified
 v1.5.1  2018-06-25  charles.shih  Bugfix for generating html report
 v1.5.2  2018-06-26  charles.shih  Modify the words in HTML report
 v1.5.3  2018-07-02  charles.shih  Modify the output words
+v1.6    2018-07-02  charles.shih  Read ./arkeeper.yaml first
 """
 
 import boto3
@@ -37,7 +38,12 @@ class AwsResourceCollector():
     def __init__(self):
         """Read user configuration from yaml file."""
         try:
-            with open(os.path.expanduser('~/.arkeeper.yaml'), 'r') as f:
+            if os.path.exists('./arkeeper.yaml'):
+                config_file = './arkeeper.yaml'
+            else:
+                config_file = os.path.expanduser('~/.arkeeper.yaml')
+
+            with open(config_file, 'r') as f:
                 yaml_dict = yaml.load(f)
 
             if self.__class__.__name__ in yaml_dict:
@@ -148,7 +154,12 @@ class AwsResourceReporter():
     def __init__(self):
         """Read user configuration."""
         try:
-            with open(os.path.expanduser('~/.arkeeper.yaml'), 'r') as f:
+            if os.path.exists('./arkeeper.yaml'):
+                config_file = './arkeeper.yaml'
+            else:
+                config_file = os.path.expanduser('~/.arkeeper.yaml')
+
+            with open(config_file, 'r') as f:
                 yaml_dict = yaml.load(f)
 
             if self.__class__.__name__ in yaml_dict:
