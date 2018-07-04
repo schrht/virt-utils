@@ -1,9 +1,12 @@
 #!/bin/bash
 
 # Description:
-# This script is used to upgarde RHEL with private compose.
-#
-# Details for ssh proxy:
+# This script is used to upgarde the RHEL VM to the private compose which can only be
+# accessed from the Intranet. So you need to run this script from the Intranet and provide
+# the URL of the private compose. In additional, you need to setup the localhost as a
+# proxy server which can provide HTTP proxy service on port 3128 (squid).
+# 
+# More information about an ssh proxy:
 # http://blog.csdn.net/sch0120/article/details/73744504
 #
 # History:
@@ -18,13 +21,21 @@
 # v1.8	2018-04-14	charles.shih	Exit if encountered a critical failure.
 # v2.0  2018-06-28  charles.shih	Copy this script from Cloud_Test project and rename
 #                                   this script from rhel_upgrade.sh to vm_upgrade.sh.
+# v2.1	2018-07-04  charles.shih	Refactory vm_upgrade.sh and add do_setup_repo.sh.
 
-function die() { echo "$@"; exit 1; }
+die() { echo "$@"; exit 1; }
 
 if [ $# -lt 3 ]; then
 	echo -e "\nUsage: $0 <pem file> <instance ip / hostname> <the baseurl to be placed in repo file>\n"
 	exit 1
 fi
+
+# The scripts used in the VM:
+# - do_configure_repo.sh   The script to configure the repo.
+# - do_upgrade.sh          The script to do system upgrade.
+# - do_workaround.sh       The script to do workaround and other configuration.
+# - do_setup_package.sh    The script to configure the repo.
+# - do_clean_up.sh         The script to do clean up before creating the AMI.
 
 # save to version.log
 date && uname -r && echo
@@ -49,14 +60,7 @@ EOF
 cat << EOF > $remote_script
 #!/bin/bash
 
-# setup repo
-sudo mv ~/rhel-debug.repo /etc/yum.repos.d/
-
-# enable repo
-sudo yum-config-manager --enable rhel-debug || die "[FAILED] Enable repo rhel-debug failed."
-
-# clean the cache
-yum clean all --disablerepo=* --enablerepo=rhel-debug || die "[FAILED] yum clean failed due to error."
+./do_setup_repo.sh --enable
 
 # do upgrade
 sudo yum update -y || die "[FAILED] yum update failed due to error."
@@ -91,8 +95,7 @@ else
 	echo -e "\nCheck passed!\n"
 fi
 
-# disable repo
-sudo yum-config-manager --disable rhel-debug || die "[FAILED] Disable repo rhel-debug failed."
+./do_setup_repo.sh --disable
 
 # Disable requiretty if applicable
 sudo sed -i 's/^Defaults.*requiretty/#Defaults    requiretty/' /etc/sudoers
