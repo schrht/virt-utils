@@ -2,28 +2,18 @@
 
 #dryrun=1
 
-run() { echo -e "\n> $@" && [ -z $dryrun ] && eval $@; }
+source ./func.sh
 
 if [ -z $1 ]; then
 	echo "Usage: $0 <cpuids>"
-	echo "Example: $0 0..3,8,16,28..31"
+	echo "Example1: $0 0..3,8,10,12..15"
+	echo "Example2: $0 0-3,8-11,16-19,24-27"
 	exit 1
 fi
 
 cpuid_str=$1
 
-if [[ ! $cpuid_str =~ "," ]]; then
-	cpuids="$cpuid_str"
-else
-	cpuids=""
-	for id in $(eval echo {$cpuid_str}); do
-		if [[ $id =~ ".." ]]; then
-			cpuids="$cpuids $(eval echo {$id})"
-		else
-			cpuids="$cpuids $id"
-		fi
-	done
-fi
+cpuids=$(split $cpuid_str)
 
 echo -e "\nWill offline CPU #: $cpuids"
 
