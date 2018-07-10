@@ -6,7 +6,8 @@
 # running by root.
 #
 # History:
-# v1.0	2018-06-26	charles.shih	Initial version.
+# v1.0  2018-06-26  charles.shih  Initial version.
+# v1.1  2018-07-10  charles.shih  Add commands for cloud-init and others
 
 # Notes:
 # On AWS the default user is ec2-user and it is an sudoer without needing a password;
@@ -56,6 +57,7 @@ run_cmd 'sudo systemd-analyze time'
 run_cmd 'sudo systemd-analyze blame'
 run_cmd 'sudo systemd-analyze critical-chain'
 run_cmd 'sudo systemd-analyze dot'
+run_cmd 'sudo systemctl'
 
 # system
 run_cmd 'cat /proc/version'
@@ -170,6 +172,54 @@ run_cmd 'sudo ip tcp_metrics'
 run_cmd 'sudo ip token'
 run_cmd 'sudo ip netconf'
 run_cmd 'sudo ip ila'
+
+# cloud-init
+run_cmd 'sudo cat /var/log/cloud-init.log'
+run_cmd 'sudo cat /var/log/cloud-init-output.log'
+run_cmd 'sudo service cloud-init status'
+run_cmd 'sudo service cloud-init-local status'
+run_cmd 'sudo service cloud-config status'
+run_cmd 'sudo service cloud-final status'
+
+# others
+run_cmd 'sudo cat /proc/buddyinfo'
+run_cmd 'sudo cat /proc/cgroups'
+run_cmd 'sudo cat /proc/cmdline'
+run_cmd 'sudo cat /proc/consoles'
+run_cmd 'sudo cat /proc/crypto'
+run_cmd 'sudo cat /proc/devices'
+run_cmd 'sudo cat /proc/diskstats'
+run_cmd 'sudo cat /proc/dma'
+run_cmd 'sudo cat /proc/execdomains'
+run_cmd 'sudo cat /proc/fb'
+run_cmd 'sudo cat /proc/filesystems'
+run_cmd 'sudo cat /proc/iomem'
+run_cmd 'sudo cat /proc/ioports'
+run_cmd 'sudo cat /proc/kallsyms'
+run_cmd 'sudo cat /proc/keys'
+run_cmd 'sudo cat /proc/key-users'
+run_cmd 'sudo cat /proc/kmsg'
+run_cmd 'sudo cat /proc/kpagecount'
+run_cmd 'sudo cat /proc/kpageflags'
+run_cmd 'sudo cat /proc/loadavg'
+run_cmd 'sudo cat /proc/locks'
+run_cmd 'sudo cat /proc/mdstat'
+run_cmd 'sudo cat /proc/misc'
+run_cmd 'sudo cat /proc/modules'
+run_cmd 'sudo cat /proc/mtrr'
+run_cmd 'sudo cat /proc/pagetypeinfo'
+run_cmd 'sudo cat /proc/partitions'
+run_cmd 'sudo cat /proc/sched_debug'
+run_cmd 'sudo cat /proc/schedstat'
+run_cmd 'sudo cat /proc/slabinfo'
+run_cmd 'sudo cat /proc/softirqs'
+run_cmd 'sudo cat /proc/stat'
+run_cmd 'sudo cat /proc/swaps'
+run_cmd 'sudo cat /proc/sysrq-trigger'
+run_cmd 'sudo cat /proc/timer_list'
+run_cmd 'sudo cat /proc/timer_stats'
+run_cmd 'sudo cat /proc/vmallocinfo'
+run_cmd 'sudo cat /proc/vmstat'
 
 exit 0
 
