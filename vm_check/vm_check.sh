@@ -70,6 +70,9 @@ run_cmd 'cat /etc/issue'
 # bios and hardware
 run_cmd 'sudo dmidecode -t bios'
 run_cmd 'lspci'
+run_cmd 'lspci -v'
+run_cmd 'lspci -vv'
+run_cmd 'lspci -vvv'
 
 # package
 run_cmd 'sudo rpm -qa'
