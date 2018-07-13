@@ -6,8 +6,10 @@
 # running by root.
 #
 # History:
-# v1.0  2018-06-26  charles.shih  Initial version.
+# v1.0  2018-06-26  charles.shih  Initial version
 # v1.1  2018-07-10  charles.shih  Add commands for cloud-init and others
+# v1.2  2018-07-12  charles.shih  Add commands lspci
+# v1.3  2018-07-13  charles.shih  Remove command cat /proc/kmsg
 
 # Notes:
 # On AWS the default user is ec2-user and it is an sudoer without needing a password;
@@ -201,7 +203,6 @@ run_cmd 'sudo cat /proc/ioports'
 run_cmd 'sudo cat /proc/kallsyms'
 run_cmd 'sudo cat /proc/keys'
 run_cmd 'sudo cat /proc/key-users'
-run_cmd 'sudo cat /proc/kmsg'
 run_cmd 'sudo cat /proc/kpagecount'
 run_cmd 'sudo cat /proc/kpageflags'
 run_cmd 'sudo cat /proc/loadavg'
