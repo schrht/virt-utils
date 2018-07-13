@@ -10,20 +10,25 @@
 # v1.1  2018-07-10  charles.shih  Add commands for cloud-init and others
 # v1.2  2018-07-12  charles.shih  Add commands lspci
 # v1.3  2018-07-13  charles.shih  Remove command cat /proc/kmsg
+# v2.0  2018-07-13  charles.shih  Support running on Non-AWS
 
 # Notes:
 # On AWS the default user is ec2-user and it is an sudoer without needing a password;
 # On Azure and Aliyun the default user is root.
 
-PATH=~/workspace/bin:/usr/sbin:/usr/local/bin:$PATH
+show_inst_type() {
+	# AWS
+	inst_type=$(curl http://169.254.169.254/latest/meta-data/instance-type 2>/dev/null)
+	[ ! -z "$inst_type" ] && echo $inst_type && return 0
 
-inst_type=$(metadata.sh -t | awk '{print $2}')
-time_stamp=$(timestamp.sh)
-base="$HOME/workspace/log/general_test_${inst_type}_${time_stamp}"
-mkdir -p $base
-readme=$base/readme.txt
+	# Azure
+	inst_type=$(curl http://169.254.169.254/meta-data/instance-type 2>/dev/null)
+	[ ! -z "$inst_type" ] && echo $inst_type && return 0
 
-# perform this test
+	# To be supported
+	return 1
+}
+
 function run_cmd(){
 	# $1: Command to be executed
 	# $2: The filename where log to be saved (optional)
@@ -40,6 +45,13 @@ function run_cmd(){
 
 	return $?
 }
+
+# Start VM check
+inst_type=$(show_inst_type)
+time_stamp=$(date +%Y%m%d%H%M%S)
+base="$HOME/workspace/log/vm_check_${inst_type:=unknown}_${time_stamp=random$$}"
+mkdir -p $base
+readme=$base/readme.txt
 
 # Waiting for Bootup finished
 while [[ "$(sudo systemd-analyze time 2>&1)" =~ "Bootup is not yet finished" ]]; do
