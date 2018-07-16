@@ -11,6 +11,7 @@
 # v1.2  2018-07-12  charles.shih  Add commands lspci
 # v1.3  2018-07-13  charles.shih  Remove command cat /proc/kmsg
 # v2.0  2018-07-13  charles.shih  Support running on Non-AWS
+# v2.1  2018-07-16  charles.shih  Remove command cat /proc/kpage*
 
 # Notes:
 # On AWS the default user is ec2-user and it is an sudoer without needing a password;
@@ -215,8 +216,6 @@ run_cmd 'sudo cat /proc/ioports'
 run_cmd 'sudo cat /proc/kallsyms'
 run_cmd 'sudo cat /proc/keys'
 run_cmd 'sudo cat /proc/key-users'
-run_cmd 'sudo cat /proc/kpagecount'
-run_cmd 'sudo cat /proc/kpageflags'
 run_cmd 'sudo cat /proc/loadavg'
 run_cmd 'sudo cat /proc/locks'
 run_cmd 'sudo cat /proc/mdstat'
