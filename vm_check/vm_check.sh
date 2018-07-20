@@ -12,7 +12,8 @@
 # v1.3  2018-07-13  charles.shih  Remove command cat /proc/kmsg
 # v2.0  2018-07-13  charles.shih  Support running on Non-AWS
 # v2.1  2018-07-16  charles.shih  Remove command cat /proc/kpage*
-# v2.2  2018-07-16  charles.shih  Add some commands about network and cloud-init
+# v2.2  2018-07-16  charles.shih  Add some commands for network and cloud-init
+# v2.3  2018-07-20  charles.shih  Add some commands for network
 
 # Notes:
 # On AWS the default user is ec2-user and it is an sudoer without needing a password;
@@ -170,6 +171,18 @@ run_cmd 'fdisk -l'
 # network
 run_cmd 'ifconfig -a'
 run_cmd 'ethtool eth0'
+run_cmd 'ethtool -a eth0'
+run_cmd 'ethtool -c eth0'
+run_cmd 'ethtool -g eth0'
+run_cmd 'ethtool -k eth0'
+run_cmd 'ethtool -n eth0'
+run_cmd 'ethtool -T eth0'
+run_cmd 'ethtool -x eth0'
+run_cmd 'ethtool -P eth0'
+run_cmd 'ethtool -l eth0'
+run_cmd 'ethtool --show-priv-flags eth0'
+run_cmd 'ethtool --show-eee eth0'
+run_cmd 'ethtool --show-fec eth0'
 run_cmd 'sudo ip link'
 run_cmd 'sudo ip address'
 run_cmd 'sudo ip addrlabel'
@@ -194,6 +207,8 @@ run_cmd 'sudo ip ila'
 run_cmd 'hostname'
 run_cmd 'cat /etc/hostname'
 run_cmd 'cat /etc/hosts'
+run_cmd 'ping -c 1 8.8.8.8'
+run_cmd 'ping6 -c 1 2001:4860:4860::8888'
 
 # cloud-init
 run_cmd 'sudo cat /var/log/cloud-init.log'
