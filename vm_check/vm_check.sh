@@ -14,6 +14,7 @@
 # v2.1  2018-07-16  charles.shih  Remove command cat /proc/kpage*
 # v2.2  2018-07-16  charles.shih  Add some commands for network and cloud-init
 # v2.3  2018-07-20  charles.shih  Add some commands for network
+# v2.4  2018-07-20  charles.shih  Add some command journalctl to get system log
 
 # Notes:
 # On AWS the default user is ec2-user and it is an sudoer without needing a password;
@@ -159,6 +160,7 @@ run_cmd 'dmesg -f auth'
 run_cmd 'dmesg -f syslog'
 run_cmd 'dmesg -f lpr'
 run_cmd 'dmesg -f news'
+run_cmd 'journalctl'
 
 # block
 run_cmd 'lsblk'
