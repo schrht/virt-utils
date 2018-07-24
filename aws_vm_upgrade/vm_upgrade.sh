@@ -26,6 +26,7 @@
 # v2.3  2018-07-24  charles.shih  Refactory vm_upgrade.sh and do_config_repo.sh.
 # v2.4  2018-07-24  charles.shih  Some bugfix in vm_upgrade.sh and do_upgrade.sh.
 # v2.5  2018-07-24  charles.shih  Refactory vm_upgrade.sh and add do_setup_package.sh.
+# v2.6  2018-07-24  charles.shih  Move save kernel version to do_upgrade.sh.
 
 die() { echo "$@"; exit 1; }
 
@@ -41,10 +42,6 @@ fi
 # - do_setup_package.sh    The script to install specified packages.
 # - do_clean_up.sh         The script to do clean up before creating the AMI.
 
-# save to version.log
-date && uname -r && echo
-echo "\$(date) : \$(uname -r)" >> ~/version.log
-
 pem=$1
 instname=$2
 baseurl=$3
@@ -59,8 +56,8 @@ ssh -R 8080:127.0.0.1:3128 -i $pem ec2-user@$instname -t "~/do_configure_repo.sh
 ssh -R 8080:127.0.0.1:3128 -i $pem ec2-user@$instname -t "~/do_configure_repo.sh --clean"
 
 # upgrade the system
-ssh -R 8080:127.0.0.1:3128 -i $pem ec2-user@$instname -t "~/do_upgrade.sh 2>&1 | tee ~/vm_upgrade.log"
-ssh -R 8080:127.0.0.1:3128 -i $pem ec2-user@$instname -t "~/do_setup_package.sh 2>&1 | tee ~/vm_upgrade.log"
+ssh -R 8080:127.0.0.1:3128 -i $pem ec2-user@$instname -t "~/do_upgrade.sh 2>&1 | tee -a ~/vm_upgrade.log"
+ssh -R 8080:127.0.0.1:3128 -i $pem ec2-user@$instname -t "~/do_setup_package.sh 2>&1 | tee -a ~/vm_upgrade.log"
 
 # disable the repo
 ssh -R 8080:127.0.0.1:3128 -i $pem ec2-user@$instname -t "~/do_configure_repo.sh --disable"
