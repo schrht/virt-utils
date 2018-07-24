@@ -47,15 +47,6 @@ pem=$1
 instname=$2
 baseurl=$3
 
-# confirm the repo file content
-echo -e "\nThe content of the repo file will be:"
-echo "---------------"
-cat $repo_file
-echo "---------------"
-
-read -n 1 -p "Do you want to continue? [y/n] " answer
-[ "$answer" <> "y" ] && echo -e "\nAborted." && exit 1
-
 # upload the scripts
 scp -i $pem ./do_*.sh ec2-user@$instname:~
 ssh -i $pem ec2-user@$instname -t "chmod 755 ~/do_*.sh"
