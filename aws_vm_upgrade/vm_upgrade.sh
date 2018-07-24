@@ -25,6 +25,7 @@
 # v2.2  2018-07-23  charles.shih  Refactory vm_upgrade.sh and add do_upgrade.sh.
 # v2.3  2018-07-24  charles.shih  Refactory vm_upgrade.sh and do_config_repo.sh.
 # v2.4  2018-07-24  charles.shih  Some bugfix in vm_upgrade.sh and do_upgrade.sh.
+# v2.5  2018-07-24  charles.shih  Refactory vm_upgrade.sh and add do_setup_package.sh.
 
 die() { echo "$@"; exit 1; }
 
@@ -58,7 +59,8 @@ ssh -R 8080:127.0.0.1:3128 -i $pem ec2-user@$instname -t "~/do_configure_repo.sh
 ssh -R 8080:127.0.0.1:3128 -i $pem ec2-user@$instname -t "~/do_configure_repo.sh --clean"
 
 # upgrade the system
-ssh -R 8080:127.0.0.1:3128 -i $pem ec2-user@$instname -t "~/do_upgrade.sh 2>&1 | tee ~/do_upgrade.log"
+ssh -R 8080:127.0.0.1:3128 -i $pem ec2-user@$instname -t "~/do_upgrade.sh 2>&1 | tee ~/vm_upgrade.log"
+ssh -R 8080:127.0.0.1:3128 -i $pem ec2-user@$instname -t "~/do_setup_package.sh 2>&1 | tee ~/vm_upgrade.log"
 
 # disable the repo
 ssh -R 8080:127.0.0.1:3128 -i $pem ec2-user@$instname -t "~/do_configure_repo.sh --disable"
