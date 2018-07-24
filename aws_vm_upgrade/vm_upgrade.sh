@@ -23,20 +23,21 @@
 #                                 this script from rhel_upgrade.sh to vm_upgrade.sh.
 # v2.1  2018-07-04  charles.shih  Refactory vm_upgrade.sh and add do_setup_repo.sh.
 # v2.2  2018-07-23  charles.shih  Refactory vm_upgrade.sh and add do_upgrade.sh.
-# v2.3  2018-07-23  charles.shih  Refactory vm_upgrade.sh and do_config_repo.sh.
+# v2.3  2018-07-24  charles.shih  Refactory vm_upgrade.sh and do_config_repo.sh.
+# v2.4  2018-07-24  charles.shih  Some bugfix in vm_upgrade.sh and do_upgrade.sh.
 
 die() { echo "$@"; exit 1; }
 
 if [ $# -lt 3 ]; then
-	echo -e "\nUsage: $0 <pem file> <instance ip / hostname> <the baseurl to be placed in repo file>\n"
-	exit 1
+    echo -e "\nUsage: $0 <pem file> <instance ip / hostname> <the baseurl to be placed in repo file>\n"
+    exit 1
 fi
 
 # The scripts used in the VM:
 # - do_configure_repo.sh   The script to configure the repo.
 # - do_upgrade.sh          The script to do system upgrade.
 # - do_workaround.sh       The script to do workaround and other configuration.
-# - do_setup_package.sh    The script to configure the repo.
+# - do_setup_package.sh    The script to install specified packages.
 # - do_clean_up.sh         The script to do clean up before creating the AMI.
 
 # save to version.log
