@@ -23,6 +23,7 @@
 #                                 this script from rhel_upgrade.sh to vm_upgrade.sh.
 # v2.1  2018-07-04  charles.shih  Refactory vm_upgrade.sh and add do_setup_repo.sh.
 # v2.2  2018-07-23  charles.shih  Refactory vm_upgrade.sh and add do_upgrade.sh.
+# v2.3  2018-07-23  charles.shih  Refactory vm_upgrade.sh and do_config_repo.sh.
 
 die() { echo "$@"; exit 1; }
 
@@ -46,19 +47,6 @@ pem=$1
 instname=$2
 baseurl=$3
 
-repo_file=/tmp/rhel-debug.repo
-
-cat << EOF > $repo_file
-[rhel-debug]
-name=rhel-debug
-baseurl=$baseurl
-enabled=1
-gpgcheck=0
-proxy=http://127.0.0.1:8080/
-EOF
-
-
-
 # confirm the repo file content
 echo -e "\nThe content of the repo file will be:"
 echo "---------------"
@@ -73,15 +61,15 @@ scp -i $pem ./do_*.sh ec2-user@$instname:~
 ssh -i $pem ec2-user@$instname -t "chmod 755 ~/do_*.sh"
 
 # enable the repo
-ssh -R 8080:127.0.0.1:3128 -i $pem ec2-user@$instname -t "~/do_setup_repo.sh --enable"
+ssh -R 8080:127.0.0.1:3128 -i $pem ec2-user@$instname -t "~/do_configure_repo.sh --setup $baseurl"
+ssh -R 8080:127.0.0.1:3128 -i $pem ec2-user@$instname -t "~/do_configure_repo.sh --enable"
+ssh -R 8080:127.0.0.1:3128 -i $pem ec2-user@$instname -t "~/do_configure_repo.sh --clean"
 
 # upgrade the system
 ssh -R 8080:127.0.0.1:3128 -i $pem ec2-user@$instname -t "~/do_upgrade.sh 2>&1 | tee ~/do_upgrade.log"
 
 # disable the repo
-ssh -R 8080:127.0.0.1:3128 -i $pem ec2-user@$instname -t "~/do_setup_repo.sh --disable"
-
-# remove the temp files
-rm -f $repo_file
+ssh -R 8080:127.0.0.1:3128 -i $pem ec2-user@$instname -t "~/do_configure_repo.sh --disable"
 
 exit 0
+
