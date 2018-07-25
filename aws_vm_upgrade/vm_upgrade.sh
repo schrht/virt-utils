@@ -27,6 +27,7 @@
 # v2.4  2018-07-24  charles.shih  Some bugfix in vm_upgrade.sh and do_upgrade.sh.
 # v2.5  2018-07-24  charles.shih  Refactory vm_upgrade.sh and add do_setup_package.sh.
 # v2.6  2018-07-24  charles.shih  Move save kernel version to do_upgrade.sh.
+# v2.7  2018-07-25  charles.shih  Add reboot vm and waiting for ssh online logic.
 
 die() { echo "$@"; exit 1; }
 
@@ -62,5 +63,15 @@ ssh -R 8080:127.0.0.1:3128 -i $pem ec2-user@$instname -t "~/do_setup_package.sh 
 # disable the repo
 ssh -R 8080:127.0.0.1:3128 -i $pem ec2-user@$instname -t "~/do_configure_repo.sh --disable"
 
-exit 0
+# reboot the system
+echo -e "\nRebooting the system..."
+ssh -i $pem ec2-user@$instname -t "sudo reboot"
 
+# waiting ssh online
+while [ "$ping_state" != "OK" ] || [ "$ssh_state" != "OK" ]; do
+	ping $instname -c 1 -W 2 &>/dev/null && ping_state="OK" || ping_state="FAIL"
+	ssh -i $pem -o "ConnectTimeout 8" ec2-user@$instname -t "echo" &>/dev/null && ssh_state="OK" || ssh_state="FAIL"
+	echo -e "\nCurrent Time: $(date +"%Y-%m-%d %H:%M:%S") | PING State: $ping_state | SSH State: $ssh_state"
+done
+
+exit 0
