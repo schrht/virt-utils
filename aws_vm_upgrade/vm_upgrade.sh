@@ -28,6 +28,7 @@
 # v2.5  2018-07-24  charles.shih  Refactory vm_upgrade.sh and add do_setup_package.sh.
 # v2.6  2018-07-24  charles.shih  Move save kernel version to do_upgrade.sh.
 # v2.7  2018-07-25  charles.shih  Add reboot vm and waiting for ssh online logic.
+# v2.8  2018-07-25  charles.shih  Refactory vm_upgrade.sh and add do_clean_up.sh.
 
 die() { echo "$@"; exit 1; }
 
@@ -73,5 +74,8 @@ while [ "$ping_state" != "OK" ] || [ "$ssh_state" != "OK" ]; do
 	ssh -i $pem -o "ConnectTimeout 8" ec2-user@$instname -t "echo" &>/dev/null && ssh_state="OK" || ssh_state="FAIL"
 	echo -e "\nCurrent Time: $(date +"%Y-%m-%d %H:%M:%S") | PING State: $ping_state | SSH State: $ssh_state"
 done
+
+# do clean up for creating AMI
+ssh -i $pem ec2-user@$instname -t "~/do_clean_up.sh"
 
 exit 0
