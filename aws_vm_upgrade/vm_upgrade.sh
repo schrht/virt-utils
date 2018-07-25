@@ -29,6 +29,7 @@
 # v2.6  2018-07-24  charles.shih  Move save kernel version to do_upgrade.sh.
 # v2.7  2018-07-25  charles.shih  Add reboot vm and waiting for ssh online logic.
 # v2.8  2018-07-25  charles.shih  Refactory vm_upgrade.sh and add do_clean_up.sh.
+# v2.9  2018-07-25  charles.shih  Refactory vm_upgrade.sh and add do_save_status.sh.
 
 die() { echo "$@"; exit 1; }
 
@@ -39,6 +40,7 @@ fi
 
 # The scripts used in the VM:
 # - do_configure_repo.sh   The script to configure the repo.
+# - do_save_status.sh      The script to save current kernel version etc.
 # - do_upgrade.sh          The script to do system upgrade.
 # - do_workaround.sh       The script to do workaround and other configuration.
 # - do_setup_package.sh    The script to install specified packages.
@@ -51,6 +53,9 @@ baseurl=$3
 # upload the scripts
 scp -i $pem ./do_*.sh ec2-user@$instname:~
 ssh -i $pem ec2-user@$instname -t "chmod 755 ~/do_*.sh"
+
+# save current status
+ssh -i $pem ec2-user@$instname -t "~/do_save_status.sh"
 
 # enable the repo
 ssh -R 8080:127.0.0.1:3128 -i $pem ec2-user@$instname -t "~/do_configure_repo.sh --setup $baseurl"
@@ -74,6 +79,9 @@ while [ "$ping_state" != "OK" ] || [ "$ssh_state" != "OK" ]; do
 	ssh -i $pem -o "ConnectTimeout 8" ec2-user@$instname -t "echo" &>/dev/null && ssh_state="OK" || ssh_state="FAIL"
 	echo -e "\nCurrent Time: $(date +"%Y-%m-%d %H:%M:%S") | PING State: $ping_state | SSH State: $ssh_state"
 done
+
+# save current status
+ssh -i $pem ec2-user@$instname -t "~/do_save_status.sh"
 
 # do clean up for creating AMI
 ssh -i $pem ec2-user@$instname -t "~/do_clean_up.sh"
