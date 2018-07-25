@@ -12,6 +12,12 @@ show_usage() {
     echo -e "$0 --disable"
 }
 
+# print title
+echo -e "\n=================================================="
+echo -e "do_configure_repo.sh $@"
+echo -e "==================================================\n"
+
+# check parameters
 if [ -z "$1" ]; then
     show_usage
     die "[ERROR] Bad parameters."

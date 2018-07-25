@@ -2,6 +2,11 @@
 
 die() { echo "$@"; exit 1; }
 
+# print title
+echo -e "\n=================================================="
+echo -e "do_setup_package.sh"
+echo -e "==================================================\n"
+
 # install specific packages
 sudo yum install -y kernel-tools     || result="failure"
 sudo yum install -y kernel-devel     || result="failure"
