@@ -40,6 +40,7 @@
 # v2.9   2018-07-25  charles.shih  Refactory vm_upgrade.sh and add do_save_status.sh.
 # v2.10  2018-07-25  charles.shih  Print title in each script used in VM.
 # v2.11  2018-07-26  charles.shih  Add logic to detect local proxy server.
+# v2.12  2018-07-26  charles.shih  Some small adjustments.
 
 die() { echo "$@"; exit 1; }
 
@@ -56,7 +57,7 @@ baseurl=$3
 [ -z "$(netstat -tln | grep :3128)" ] && die "[ERROR] Proxy server is not running or listening port 8123."
 
 # upload the scripts
-scp -i $pem ./do_*.sh ec2-user@$instname:~
+scp -i $pem ./do_*.sh ec2-user@$instname:~ || die "[ERROR] Failed to upload scripts to the VM."
 ssh -i $pem ec2-user@$instname -t "chmod 755 ~/do_*.sh"
 
 # save current status
@@ -83,6 +84,7 @@ while [ "$ping_state" != "OK" ] || [ "$ssh_state" != "OK" ]; do
 	ping $instname -c 1 -W 2 &>/dev/null && ping_state="OK" || ping_state="FAIL"
 	ssh -i $pem -o "ConnectTimeout 8" ec2-user@$instname -t "echo" &>/dev/null && ssh_state="OK" || ssh_state="FAIL"
 	echo -e "\nCurrent Time: $(date +"%Y-%m-%d %H:%M:%S") | PING State: $ping_state | SSH State: $ssh_state"
+	sleep 2
 done
 
 # save current status
@@ -90,5 +92,7 @@ ssh -i $pem ec2-user@$instname -t "~/do_save_status.sh"
 
 # do clean up for creating AMI
 ssh -i $pem ec2-user@$instname -t "~/do_clean_up.sh"
+
+echo -e "Job finished."
 
 exit 0
