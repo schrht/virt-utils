@@ -39,6 +39,7 @@
 # v2.8   2018-07-25  charles.shih  Refactory vm_upgrade.sh and add do_clean_up.sh.
 # v2.9   2018-07-25  charles.shih  Refactory vm_upgrade.sh and add do_save_status.sh.
 # v2.10  2018-07-25  charles.shih  Print title in each script used in VM.
+# v2.11  2018-07-26  charles.shih  Add logic to detect local proxy server.
 
 die() { echo "$@"; exit 1; }
 
@@ -50,6 +51,9 @@ fi
 pem=$1
 instname=$2
 baseurl=$3
+
+# check proxy server
+[ -z "$(netstat -tln | grep :3128)" ] && die "[ERROR] Proxy server is not running or listening port 8123."
 
 # upload the scripts
 scp -i $pem ./do_*.sh ec2-user@$instname:~
