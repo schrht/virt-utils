@@ -1,0 +1,23 @@
+# Stop the NTP service
+
+sudo systemctl stop ntpd
+sudo systemctl disable ntpd
+sudo systemctl stop chronyd
+sudo systemctl disable chronyd
+sudo timedatectl set-ntp 0
+
+# Install stress
+
+wget http://rpmfind.net/linux/epel/7/x86_64/Packages/s/stress-1.0.4-16.el7.x86_64.rpm
+sudo rpm -ivh stress-*.rpm
+
+# Install ntpdate
+
+sudo yum install ntpdate -y
+
+# NTP Query
+/usr/sbin/ntpdate -q de.ntp.org.cn > ~/ntp_query_reboot_0_$(date +%Y%m%d%H%M%S).log
+
+# Check results
+grep "ntpdate.*offset" * | sed 's/ntp_query_reboot_//' | sort -n | awk '{print $10}'
+
