@@ -15,6 +15,7 @@
 # v2.2  2018-07-16  charles.shih  Add some commands for network and cloud-init
 # v2.3  2018-07-20  charles.shih  Add some commands for network
 # v2.4  2018-07-20  charles.shih  Add some command journalctl to get system log
+# v2.5  2018-08-15  charles.shih  Add message to show where the log is saved to
 
 # Notes:
 # On AWS the default user is ec2-user and it is an sudoer without needing a password;
@@ -257,6 +258,9 @@ run_cmd 'sudo cat /proc/timer_list'
 run_cmd 'sudo cat /proc/timer_stats'
 run_cmd 'sudo cat /proc/vmallocinfo'
 run_cmd 'sudo cat /proc/vmstat'
+
+echo -e "\nAll log files can be found in \"$base\";"
+echo -e "For more details, please check \"$readme\"."
 
 exit 0
 
