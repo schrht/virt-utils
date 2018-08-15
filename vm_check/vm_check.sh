@@ -17,6 +17,7 @@
 # v2.4  2018-07-20  charles.shih  Add some command journalctl to get system log
 # v2.5  2018-08-15  charles.shih  Add message to show where the log is saved to
 # v2.6  2018-08-15  charles.shih  Add /usr/local/sbin:/usr/sbin into PATH
+# v2.7  2018-08-15  charles.shih  Install package redhat-lsb
 
 # Notes:
 # On AWS the default user is ec2-user and it is an sudoer without needing a password;
@@ -71,6 +72,7 @@ echo -e "\n\nInstallation:\n===============\n" >> $readme
 
 # install
 sudo yum install sysstat -y &>> $readme
+sudo yum install redhat-lsb -y &>> $readme
 
 echo -e "\n\nTest Results:\n===============\n" >> $readme
 
@@ -266,4 +268,3 @@ echo -e "\nAll log files can be found in \"$base\";"
 echo -e "For more details, please check \"$readme\"."
 
 exit 0
-
