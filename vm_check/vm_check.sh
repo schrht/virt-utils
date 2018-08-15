@@ -16,6 +16,7 @@
 # v2.3  2018-07-20  charles.shih  Add some commands for network
 # v2.4  2018-07-20  charles.shih  Add some command journalctl to get system log
 # v2.5  2018-08-15  charles.shih  Add message to show where the log is saved to
+# v2.6  2018-08-15  charles.shih  Add /usr/local/sbin:/usr/sbin into PATH
 
 # Notes:
 # On AWS the default user is ec2-user and it is an sudoer without needing a password;
@@ -50,6 +51,8 @@ function run_cmd(){
 
 	return $?
 }
+
+export PATH=$PATH:/usr/local/sbin:/usr/sbin
 
 # Start VM check
 inst_type=$(show_inst_type)
