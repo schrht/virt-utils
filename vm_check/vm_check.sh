@@ -6,20 +6,21 @@
 # running by root.
 #
 # History:
-# v1.0  2018-06-26  charles.shih  Initial version
-# v1.1  2018-07-10  charles.shih  Add commands for cloud-init and others
-# v1.2  2018-07-12  charles.shih  Add commands lspci
-# v1.3  2018-07-13  charles.shih  Remove command cat /proc/kmsg
-# v2.0  2018-07-13  charles.shih  Support running on Non-AWS
-# v2.1  2018-07-16  charles.shih  Remove command cat /proc/kpage*
-# v2.2  2018-07-16  charles.shih  Add some commands for network and cloud-init
-# v2.3  2018-07-20  charles.shih  Add some commands for network
-# v2.4  2018-07-20  charles.shih  Add some command journalctl to get system log
-# v2.5  2018-08-15  charles.shih  Add message to show where the log is saved to
-# v2.6  2018-08-15  charles.shih  Add /usr/local/sbin:/usr/sbin into PATH
-# v2.7  2018-08-15  charles.shih  Install package redhat-lsb
-# v2.8  2018-08-28  charles.shih  Auto add sudo before commands
-# v2.9  2018-08-28  charles.shih  Save error outputs into *.log.err
+# v1.0   2018-06-26  charles.shih  Initial version
+# v1.1   2018-07-10  charles.shih  Add commands for cloud-init and others
+# v1.2   2018-07-12  charles.shih  Add commands lspci
+# v1.3   2018-07-13  charles.shih  Remove command cat /proc/kmsg
+# v2.0   2018-07-13  charles.shih  Support running on Non-AWS
+# v2.1   2018-07-16  charles.shih  Remove command cat /proc/kpage*
+# v2.2   2018-07-16  charles.shih  Add some commands for network and cloud-init
+# v2.3   2018-07-20  charles.shih  Add some commands for network
+# v2.4   2018-07-20  charles.shih  Add some command journalctl to get system log
+# v2.5   2018-08-15  charles.shih  Add message to show where the log is saved to
+# v2.6   2018-08-15  charles.shih  Add /usr/local/sbin:/usr/sbin into PATH
+# v2.7   2018-08-15  charles.shih  Install package redhat-lsb
+# v2.8   2018-08-28  charles.shih  Auto add sudo before commands
+# v2.9   2018-08-28  charles.shih  Save error outputs into *.log.err
+# v2.10  2018-08-28  charles.shih  Display error messages when command failure
 
 # Notes:
 # On AWS the default user is ec2-user and it is an sudoer without needing a password;
@@ -54,8 +55,14 @@ function run_cmd(){
 	echo -e "\ncmd> $cmd" >> $readme
 	echo -e "log> $sublog[.err]" >> $readme
 	eval $cmd > $sublog 2> $sublog.err
+	
+	rcode=$?
+	if [ $rcode != 0 ]; then
+		echo -e "\ncmd> $cmd"
+		cat $sublog.err
+    fi
 
-	return $?
+    return $rcode
 }
 
 export PATH=$PATH:/usr/local/sbin:/usr/sbin
