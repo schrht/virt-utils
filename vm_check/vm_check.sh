@@ -19,6 +19,7 @@
 # v2.6  2018-08-15  charles.shih  Add /usr/local/sbin:/usr/sbin into PATH
 # v2.7  2018-08-15  charles.shih  Install package redhat-lsb
 # v2.8  2018-08-28  charles.shih  Auto add sudo before commands
+# v2.9  2018-08-28  charles.shih  Save error outputs into *.log.err
 
 # Notes:
 # On AWS the default user is ec2-user and it is an sudoer without needing a password;
@@ -51,8 +52,8 @@ function run_cmd(){
 	fi
 
 	echo -e "\ncmd> $cmd" >> $readme
-	echo -e "log> $sublog" >> $readme
-	eval $cmd >> $sublog 2>&1
+	echo -e "log> $sublog[.err]" >> $readme
+	eval $cmd > $sublog 2> $sublog.err
 
 	return $?
 }
