@@ -21,6 +21,7 @@
 # v2.8   2018-08-28  charles.shih  Auto add sudo before commands
 # v2.9   2018-08-28  charles.shih  Save error outputs into *.log.err
 # v2.10  2018-08-28  charles.shih  Display error messages when command failure
+# v2.11  2018-08-28  charles.shih  Modify some commands and do some enhancement
 
 # Notes:
 # On AWS the default user is ec2-user and it is an sudoer without needing a password;
@@ -47,19 +48,19 @@ function run_cmd(){
 	[ $(whoami) = root ] && cmd="$1" || cmd="sudo $1"
 
 	if [ -z "$2" ]; then
-		sublog=$base/$(echo $cmd | tr -c "[:alpha:][:digit:]" "_").log
+		cmdlog=$base/$(echo $cmd | tr -c "[:alpha:][:digit:]" "_").log
 	else
-		sublog=$base/$2
+		cmdlog=$base/$2
 	fi
 
-	echo -e "\ncmd> $cmd" >> $readme
-	echo -e "log> $sublog[.err]" >> $readme
-	eval $cmd > $sublog 2> $sublog.err
+	echo -e "\ncmd> $cmd" >> $joblog
+	echo -e "log> $cmdlog[.err]" >> $joblog
+	eval $cmd > $cmdlog 2> $cmdlog.err
 	
 	rcode=$?
 	if [ $rcode != 0 ]; then
 		echo -e "\ncmd> $cmd"
-		cat $sublog.err
+		cat $cmdlog.err
     fi
 
     return $rcode
@@ -67,26 +68,28 @@ function run_cmd(){
 
 export PATH=$PATH:/usr/local/sbin:/usr/sbin
 
-# Start VM check
+# Prepare environment
 inst_type=$(show_inst_type)
 time_stamp=$(date +%Y%m%d%H%M%S)
 base="$HOME/workspace/log/vm_check_${inst_type:=unknown}_${time_stamp=random$$}"
 mkdir -p $base
-readme=$base/readme.txt
+joblog=$base/job.txt
 
 # Waiting for Bootup finished
 while [[ "$(sudo systemd-analyze time 2>&1)" =~ "Bootup is not yet finished" ]]; do
-	echo "[$(date)] Bootup is not yet finished." >> $readme
+	echo "[$(date)] Bootup is not yet finished." >> $joblog
 	sleep 2s
 done
 
-echo -e "\n\nInstallation:\n===============\n" >> $readme
+echo -e "\n\nInstallation:\n===============\n" >> $joblog
 
 # install
-sudo yum install sysstat -y &>> $readme
-sudo yum install redhat-lsb -y &>> $readme
+sudo yum install sysstat -y &>> $joblog
+sudo yum install redhat-lsb -y &>> $joblog
 
-echo -e "\n\nTest Results:\n===============\n" >> $readme
+echo -e "\n\nTest Results:\n===============\n" >> $joblog
+
+# Start VM check
 
 # boot
 run_cmd 'systemd-analyze time'
@@ -94,6 +97,9 @@ run_cmd 'systemd-analyze blame'
 run_cmd 'systemd-analyze critical-chain'
 run_cmd 'systemd-analyze dot'
 run_cmd 'systemctl'
+
+# virtualization
+run_cmd 'virt-what'
 
 # system
 run_cmd 'cat /proc/version'
@@ -119,7 +125,8 @@ run_cmd 'date'
 run_cmd 'cat /proc/uptime'
 run_cmd 'uptime'
 run_cmd 'top -b -n 1'
-run_cmd 'set'
+run_cmd 'base -c set'
+run_cmd 'env'
 run_cmd 'systemctl'
 run_cmd 'vmstat 3 1'
 run_cmd 'vmstat -m'
@@ -192,6 +199,7 @@ run_cmd 'fdisk -l'
 run_cmd 'ifconfig -a'
 run_cmd 'ethtool eth0'
 run_cmd 'ethtool -a eth0'
+run_cmd 'ethtool -i eth0'
 run_cmd 'ethtool -c eth0'
 run_cmd 'ethtool -g eth0'
 run_cmd 'ethtool -k eth0'
@@ -200,6 +208,8 @@ run_cmd 'ethtool -T eth0'
 run_cmd 'ethtool -x eth0'
 run_cmd 'ethtool -P eth0'
 run_cmd 'ethtool -l eth0'
+run_cmd 'ethtool -S eth0'
+run_cmd 'ethtool --phy-statistics eth0'
 run_cmd 'ethtool --show-priv-flags eth0'
 run_cmd 'ethtool --show-eee eth0'
 run_cmd 'ethtool --show-fec eth0'
@@ -215,15 +225,14 @@ run_cmd 'ip tuntap'
 run_cmd 'ip maddress'
 run_cmd 'ip mroute'
 run_cmd 'ip mrule'
-run_cmd 'ip xfrm'
 run_cmd 'ip netns'
-run_cmd 'ip l2tp'
-run_cmd 'ip fou'
-run_cmd 'ip macsec'
+run_cmd 'ip l2tp show tunnel'
+run_cmd 'ip l2tp show session'
+run_cmd 'ip macsec show'
 run_cmd 'ip tcp_metrics'
 run_cmd 'ip token'
 run_cmd 'ip netconf'
-run_cmd 'ip ila'
+run_cmd 'ip ila list'
 run_cmd 'hostname'
 run_cmd 'cat /etc/hostname'
 run_cmd 'cat /etc/hosts'
@@ -276,7 +285,7 @@ run_cmd 'cat /proc/timer_stats'
 run_cmd 'cat /proc/vmallocinfo'
 run_cmd 'cat /proc/vmstat'
 
-echo -e "\nAll log files can be found in \"$base\";"
-echo -e "For more details, please check \"$readme\"."
+echo -e "\nLog files have been generated in \"$base\";"
+echo -e "More details can be found in \"$joblog\"."
 
 exit 0
