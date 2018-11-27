@@ -23,6 +23,7 @@
 # v2.10    2018-08-28  charles.shih  Display error messages when command failure
 # v2.11    2018-08-28  charles.shih  Modify some commands and do some enhancement
 # v2.11.1  2018-09-10  charles.shih  Fix a typo in command
+# v2.12.0  2018-11-27  charles.shih  Add some commands for yum and subscription
 
 # Notes:
 # On AWS the default user is ec2-user and it is an sudoer without needing a password;
@@ -119,6 +120,12 @@ run_cmd 'lspci -vvv'
 
 # package
 run_cmd 'rpm -qa'
+run_cmd 'yum repolist'
+run_cmd 'yum repolist all'
+run_cmd 'yum repoinfo'
+run_cmd 'yum repoinfo all'
+run_cmd 'subscription-manager list --available'
+run_cmd 'subscription-manager list --consumed'
 
 # kernel
 run_cmd 'lsmod'
