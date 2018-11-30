@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# History:
+# v1.0   2018-07-25  charles.shih  Init version
+# v1.1   2018-11-30  charles.shih  Workaround for enable/disable repo in RHEL8
+
 die() { echo "$@"; exit 1; }
 
 show_usage() {
@@ -45,7 +49,11 @@ EOF
 elif [ "$1" = "--enable" ]; then
 
     # enable the repo
-    sudo yum-config-manager --enable rhel-debug || die "[FAILED] Enable repo rhel-debug failed."
+    sudo yum-config-manager --enable rhel-debug
+    if [ $? != 0 ]; then
+        # Workaround for RHEL8
+        sudo yum-config-manager --set-enabled rhel-debug || die "[FAILED] Enable repo rhel-debug failed."
+    fi
 elif [ "$1" = "--clean" ]; then
 
     # clean the cache
@@ -53,7 +61,11 @@ elif [ "$1" = "--clean" ]; then
 elif [ "$1" = "--disable" ]; then
 
     # disable the repo
-    sudo yum-config-manager --disable rhel-debug || die "[FAILED] Disable repo rhel-debug failed."
+    sudo yum-config-manager --disable rhel-debug
+    if [ $? != 0 ]; then
+        # Workaround for RHEL8
+        sudo yum-config-manager --set-disabled rhel-debug || die "[FAILED] Disable repo rhel-debug failed."
+    fi
 else
 
     # bad parameters
