@@ -9,12 +9,13 @@
 #
 # History:
 # v1.0  2018-12-24  charles.shih  Init version
+# v1.1  2018-12-26  charles.shih  Add PageSize to query full list
 
 region=${1:-"cn-beijing"}
 nic_name=${2:-"avocado_cloud_nic_d1"}
 
 echo -e "\nLooking up NICs named \"$nic_name\" from \"$region\"..."
-x=$(aliyun ecs DescribeNetworkInterfaces --RegionId $region --NetworkInterfaceName $nic_name)
+x=$(aliyun ecs DescribeNetworkInterfaces --RegionId $region --NetworkInterfaceName $nic_name --PageSize 50)
 [ $? != 0 ] && echo $x && exit 1
 nic_list=$(echo $x| jq -r '.NetworkInterfaceSets.NetworkInterfaceSet[].NetworkInterfaceId')
 echo -e "Found $(echo $nic_list | wc -w) NICs.\n"

@@ -9,12 +9,13 @@
 #
 # History:
 # v1.0  2018-12-24  charles.shih  Init version
+# v1.1  2018-12-26  charles.shih  Add PageSize to query full list
 
 region=${1:-"cn-beijing"}
 disk_name=${2:-"avocado_cloud_disk_d1"}
 
 echo -e "\nLooking up disks named \"$disk_name\" from \"$region\"..."
-x=$(aliyun ecs DescribeDisks --RegionId $region --DiskName $disk_name)
+x=$(aliyun ecs DescribeDisks --RegionId $region --DiskName $disk_name --PageSize 50)
 [ $? != 0 ] && echo $x && exit 1
 disk_list=$(echo $x| jq -r '.Disks.Disk[].DiskId')
 echo -e "Found $(echo $disk_list | wc -w) disks.\n"
