@@ -8,8 +8,9 @@
 # 2. jq
 #
 # History:
-# v1.0  2018-12-24  charles.shih  Init version
-# v1.1  2018-12-26  charles.shih  Add PageSize to query full list
+# v1.0    2018-12-24  charles.shih  Init version
+# v1.1    2018-12-26  charles.shih  Add PageSize to query full list
+# v1.1.1  2018-12-29  charles.shih  Fix a bug for checking $nic_list
 
 region=${1:-"cn-beijing"}
 nic_name=${2:-"avocado_cloud_nic_d1"}
@@ -19,7 +20,7 @@ x=$(aliyun ecs DescribeNetworkInterfaces --RegionId $region --NetworkInterfaceNa
 [ $? != 0 ] && echo $x && exit 1
 nic_list=$(echo $x| jq -r '.NetworkInterfaceSets.NetworkInterfaceSet[].NetworkInterfaceId')
 echo -e "Found $(echo $nic_list | wc -w) NICs.\n"
-[ -z "$disk_list" ] && exit 0
+[ -z "$nic_list" ] && exit 0
 
 for nic_id in $nic_list; do
 	echo -e "Deleting NIC $nic_id..."
