@@ -24,19 +24,27 @@
 # v2.11    2018-08-28  charles.shih  Modify some commands and do some enhancement
 # v2.11.1  2018-09-10  charles.shih  Fix a typo in command
 # v2.12.0  2018-11-27  charles.shih  Add some commands for yum and subscription
+# v2.13.0  2019-01-16  charles.shih  Support running on Azure instance
 
 # Notes:
 # On AWS the default user is ec2-user and it is an sudoer without needing a password;
 # On Azure and Aliyun the default user is root.
 
 show_inst_type() {
+
 	# AWS
-	inst_type=$(curl http://169.254.169.254/latest/meta-data/instance-type 2>/dev/null)
-	[ ! -z "$inst_type" ] && echo $inst_type && return 0
+	dmesg | grep -q " DMI: Alibaba Cloud"
+	if [ $? = 0 ]; then
+		curl http://169.254.169.254/latest/meta-data/instance-type 2>/dev/null
+		return 0
+	fi
 
 	# Azure
-	inst_type=$(curl http://169.254.169.254/meta-data/instance-type 2>/dev/null)
-	[ ! -z "$inst_type" ] && echo $inst_type && return 0
+	dmesg | grep -q " DMI: Microsoft Corporation Virtual Machine"
+	if [ $? = 0 ]; then
+		curl -H Metadata:true http://169.254.169.254/metadata/instance/compute/vmSize?api-version=2017-04-02\&format=text
+		return 0
+	fi
 
 	# To be supported
 	return 1
@@ -297,3 +305,4 @@ echo -e "\nLog files have been generated in \"$base\";"
 echo -e "More details can be found in \"$joblog\"."
 
 exit 0
+
