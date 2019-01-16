@@ -25,6 +25,7 @@
 # v2.11.1  2018-09-10  charles.shih  Fix a typo in command
 # v2.12.0  2018-11-27  charles.shih  Add some commands for yum and subscription
 # v2.13.0  2019-01-16  charles.shih  Support running on Azure instance
+# v2.14.0  2019-01-16  charles.shih  Support running on Aliyun instance
 
 # Notes:
 # On AWS the default user is ec2-user and it is an sudoer without needing a password;
@@ -33,7 +34,7 @@
 show_inst_type() {
 
 	# AWS
-	dmesg | grep -q " DMI: Alibaba Cloud"
+	dmesg | grep -q " DMI: Amazon EC2"
 	if [ $? = 0 ]; then
 		curl http://169.254.169.254/latest/meta-data/instance-type 2>/dev/null
 		return 0
@@ -43,6 +44,13 @@ show_inst_type() {
 	dmesg | grep -q " DMI: Microsoft Corporation Virtual Machine"
 	if [ $? = 0 ]; then
 		curl -H Metadata:true http://169.254.169.254/metadata/instance/compute/vmSize?api-version=2017-04-02\&format=text
+		return 0
+	fi
+
+	# Aliyun
+	dmesg | grep -q " DMI: Alibaba Cloud"
+	if [ $? = 0 ]; then
+		curl http://100.100.100.200/latest/meta-data/instance/instance-type 2>/dev/null
 		return 0
 	fi
 
