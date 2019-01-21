@@ -26,6 +26,7 @@
 # v2.12.0  2018-11-27  charles.shih  Add some commands for yum and subscription
 # v2.13.0  2019-01-16  charles.shih  Support running on Azure instance
 # v2.14.0  2019-01-16  charles.shih  Support running on Aliyun instance
+# v2.15.0  2019-01-21  charles.shih  Get target output path from parameter
 
 # Notes:
 # On AWS the default user is ec2-user and it is an sudoer without needing a password;
@@ -87,9 +88,14 @@ function run_cmd(){
 export PATH=$PATH:/usr/local/sbin:/usr/sbin
 
 # Prepare environment
-inst_type=$(show_inst_type)
-time_stamp=$(date +%Y%m%d%H%M%S)
-base="$HOME/workspace/log/vm_check_${inst_type:=unknown}_${time_stamp=random$$}"
+if [ -z "$1" ]; then
+	inst_type=$(show_inst_type)
+	time_stamp=$(date +%Y%m%d%H%M%S)
+	base="$HOME/workspace/log/vm_check_${inst_type:=unknown}_${time_stamp=random$$}"
+else
+	base="$1"
+fi
+
 mkdir -p $base
 joblog=$base/job.txt
 
