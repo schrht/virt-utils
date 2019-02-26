@@ -27,6 +27,7 @@
 # v2.13.0  2019-01-16  charles.shih  Support running on Azure instance
 # v2.14.0  2019-01-16  charles.shih  Support running on Aliyun instance
 # v2.15.0  2019-01-21  charles.shih  Get target output path from parameter
+# v2.16.0  2019-02-15  charles.shih  Remove command cat /proc/kallsyms
 
 # Notes:
 # On AWS the default user is ec2-user and it is an sudoer without needing a password;
@@ -292,7 +293,6 @@ run_cmd 'cat /proc/fb'
 run_cmd 'cat /proc/filesystems'
 run_cmd 'cat /proc/iomem'
 run_cmd 'cat /proc/ioports'
-run_cmd 'cat /proc/kallsyms'
 run_cmd 'cat /proc/keys'
 run_cmd 'cat /proc/key-users'
 run_cmd 'cat /proc/loadavg'
