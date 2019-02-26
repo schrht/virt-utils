@@ -6,6 +6,7 @@
 # History:
 # v1.0   2018-08-28  charles.shih  Initial version
 # v1.1   2019-01-16  charles.shih  Support running on Azure
+# v1.2   2019-02-26  charles.shih  Support running on AWS
 
 debug() { [ ! -z $DEBUG ] && echo "DEBUGINFO: $@"; }
 
@@ -21,6 +22,7 @@ determine_cloud_provider() {
 
 	# AWS
 	dmesg | grep -q " DMI: Amazon EC2" && cloud=aws && return 0
+	dmesg | grep -q " DMI: Xen HVM domU" && cloud=aws && return 0
 
 	# Azure
 	dmesg | grep -q " DMI: Microsoft Corporation Virtual Machine" && cloud=azure && return 0
