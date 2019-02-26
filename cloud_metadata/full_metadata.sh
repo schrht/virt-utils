@@ -4,18 +4,21 @@
 # This script is used to get all the metadata in cloud instance.
 #
 # History:
-# v1.0   2018-08-28  charles.shih  Initial version
-# v1.1   2019-01-16  charles.shih  Support running on Azure
-# v1.2   2019-02-26  charles.shih  Support running on AWS
+# v1.0     2018-08-28  charles.shih  Initial version
+# v1.1     2019-01-16  charles.shih  Support running on Azure
+# v1.2     2019-02-26  charles.shih  Support running on AWS
+# v1.2.1   2019-02-26  charles.shih  Move function and update comments
 
 debug() { [ ! -z $DEBUG ] && echo "DEBUGINFO: $@"; }
 
 die() { echo "ERROR: Line $@"; exit 1; }
 
+
 determine_cloud_provider() {
 	# Description: Try to determine the cloud provider
-	# Update: $cloud
-	#   - Possible Values: aws/azure/alibaba/other
+	# Update:
+	#   - $cloud:
+	#     Possible Values: aws/azure/alibaba/other
 	# Return: 0 - success / 1 - failed
 
 	debug "Enter func determine_cloud_provider"
@@ -34,6 +37,7 @@ determine_cloud_provider() {
 	cloud=other
 	return 1
 }
+
 
 determine_baseurl() {
 	# Description: Try to determine the baseurl
@@ -62,32 +66,6 @@ determine_baseurl() {
 	return 0
 }
 
-display() {
-	# Description: Display the metadata content
-	# Inputs:
-	#   $1 - URL of the metadata
-	# Varibles:
-	#   $cloud
-	# Outputs:
-	#   The URL and its content
-	# Return: None
-
-	debug "Enter func display, args = $@"
-
-	echo $1
-
-	if [ $cloud != azure ]; then
-		x=$(curl --connect-timeout 10 $1 2>/dev/null)
-	else
-		# For Azure
-		x=$(curl --connect-timeout 10 -H Metadata:true ${1}?api-version=2017-04-02\&format=text 2>/dev/null)
-	fi
-
-	[ $? != 0 ] && die "$LINENO: curl failed with code=$?."
-	[[ ! "$x" =~ "404 - Not Found" ]] && echo "$x" || echo "404 - Not Found"
-
-	return
-}
 
 traverse() {
 	# Description: Traverse the metadata (recursive algorithm)
@@ -99,6 +77,38 @@ traverse() {
 	#   - the metadata contents
 
 	debug "Enter func traverse, args = $@"
+
+	display() {
+		# Description: Display the metadata content
+		# Inputs:
+		#   - $1: URL for metadata to display
+		# Dependence:
+		#   - $cloud
+		#   - die()
+		# Display:
+		#   - the URL and its content
+		# Outputs:
+		#   n/a
+		# Return:
+		#   n/a
+
+		debug "Enter func display, args = $@"
+
+		echo $1
+
+		if [ $cloud != azure ]; then
+			x=$(curl --connect-timeout 10 $1 2>/dev/null)
+		else
+			# For Azure
+			x=$(curl --connect-timeout 10 -H Metadata:true ${1}?api-version=2017-04-02\&format=text 2>/dev/null)
+		fi
+
+		[ $? != 0 ] && die "$LINENO: curl failed with code=$?."
+		[[ ! "$x" =~ "404 - Not Found" ]] && echo "$x" || echo "404 - Not Found"
+
+		return
+	}
+
 
 	local root=$1
 
@@ -129,6 +139,7 @@ traverse() {
 		fi
 	done
 }
+
 
 # Main
 #DEBUG=yes
