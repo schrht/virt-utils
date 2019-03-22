@@ -8,6 +8,7 @@
 # v1.1     2019-01-16  charles.shih  Support running on Azure
 # v1.2     2019-02-26  charles.shih  Support running on AWS
 # v1.2.1   2019-02-26  charles.shih  Move function and update comments
+# v1.3     2019-03-21  charles.shih  Support running on Huawei
 
 debug() { [ ! -z $DEBUG ] && echo "DEBUGINFO: $@"; }
 
@@ -33,6 +34,9 @@ determine_cloud_provider() {
 	# Alibaba
 	dmesg | grep -q " DMI: Alibaba Cloud" && cloud=alibaba && return 0
 
+	# Huawei (to be done in a better way)
+	dmesg | grep -q " DMI: OpenStack Foundation OpenStack" && cloud=huawei && return 0
+
 	# To be supported
 	cloud=other
 	return 1
@@ -57,6 +61,9 @@ determine_baseurl() {
 			;;
 		alibaba)
 			baseurl="http://100.100.100.200/latest/meta-data/"
+			;;
+		huawei)
+			baseurl="http://169.254.169.254/2009-04-04/meta-data/"
 			;;
 		other)
 			return 1
