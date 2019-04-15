@@ -23,11 +23,12 @@
 # v2.10    2018-08-28  charles.shih  Display error messages when command failure
 # v2.11    2018-08-28  charles.shih  Modify some commands and do some enhancement
 # v2.11.1  2018-09-10  charles.shih  Fix a typo in command
-# v2.12.0  2018-11-27  charles.shih  Add some commands for yum and subscription
-# v2.13.0  2019-01-16  charles.shih  Support running on Azure instance
-# v2.14.0  2019-01-16  charles.shih  Support running on Aliyun instance
-# v2.15.0  2019-01-21  charles.shih  Get target output path from parameter
-# v2.16.0  2019-02-15  charles.shih  Remove command cat /proc/kallsyms
+# v2.12    2018-11-27  charles.shih  Add some commands for yum and subscription
+# v2.13    2019-01-16  charles.shih  Support running on Azure instance
+# v2.14    2019-01-16  charles.shih  Support running on Aliyun instance
+# v2.15    2019-01-21  charles.shih  Get target output path from parameter
+# v2.16    2019-02-15  charles.shih  Remove command cat /proc/kallsyms
+# v2.17    2019-04-15  charles.shih  Add some commands for SELinux
 
 # Notes:
 # On AWS the default user is ec2-user and it is an sudoer without needing a password;
@@ -278,6 +279,9 @@ run_cmd 'service cloud-init-local status'
 run_cmd 'service cloud-config status'
 run_cmd 'service cloud-final status'
 run_cmd 'systemctl status cloud-{init,init-local,config,final}'
+
+# selinux
+run_cmd 'getenforce'
 
 # others
 run_cmd 'cat /proc/buddyinfo'
