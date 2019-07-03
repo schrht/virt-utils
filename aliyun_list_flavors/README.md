@@ -1,6 +1,6 @@
 # Description
 
-List all the available instance types in Alibaba Cloud by the available zones.
+List all the available flavors (instance types) in Alibaba Cloud by the available zones.
 
 # Usage
 
