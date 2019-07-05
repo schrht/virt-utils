@@ -29,6 +29,7 @@
 # v2.15    2019-01-21  charles.shih  Get target output path from parameter
 # v2.16    2019-02-15  charles.shih  Remove command cat /proc/kallsyms
 # v2.17    2019-04-15  charles.shih  Add some commands for SELinux
+# v2.17.1  2019-07-05  charles.shih  Adjust the commands order
 
 # Notes:
 # On AWS the default user is ec2-user and it is an sudoer without needing a password;
@@ -101,15 +102,10 @@ fi
 mkdir -p $base
 joblog=$base/job.txt
 
-# Waiting for Bootup finished
-while [[ "$(sudo systemd-analyze time 2>&1)" =~ "Bootup is not yet finished" ]]; do
-	echo "[$(date)] Bootup is not yet finished." >> $joblog
-	sleep 2s
-done
 
 echo -e "\n\nInstallation:\n===============\n" >> $joblog
 
-# install
+# Install essential tools
 sudo yum install sysstat -y &>> $joblog
 sudo yum install redhat-lsb -y &>> $joblog
 
@@ -117,17 +113,10 @@ echo -e "\n\nTest Results:\n===============\n" >> $joblog
 
 # Start VM check
 
-# boot
-run_cmd 'systemd-analyze time'
-run_cmd 'systemd-analyze blame'
-run_cmd 'systemd-analyze critical-chain'
-run_cmd 'systemd-analyze dot'
-run_cmd 'systemctl'
-
-# virtualization
+## virtualization
 run_cmd 'virt-what'
 
-# system
+## system
 run_cmd 'cat /proc/version'
 run_cmd 'uname -r'
 run_cmd 'uname -a'
@@ -135,14 +124,14 @@ run_cmd 'lsb_release -a'
 run_cmd 'cat /etc/redhat-release'
 run_cmd 'cat /etc/issue'
 
-# bios and hardware
+## bios and hardware
 run_cmd 'dmidecode -t bios'
 run_cmd 'lspci'
 run_cmd 'lspci -v'
 run_cmd 'lspci -vv'
 run_cmd 'lspci -vvv'
 
-# package
+## package
 run_cmd 'rpm -qa'
 run_cmd 'yum repolist'
 run_cmd 'yum repolist all'
@@ -151,7 +140,7 @@ run_cmd 'yum repoinfo all'
 run_cmd 'subscription-manager list --available'
 run_cmd 'subscription-manager list --consumed'
 
-# kernel
+## kernel
 run_cmd 'lsmod'
 run_cmd 'date'
 run_cmd 'cat /proc/uptime'
@@ -199,7 +188,6 @@ run_cmd 'ss -t -a -Z'
 run_cmd 'cat /proc/zoneinfo'
 run_cmd 'cat /proc/mounts'
 run_cmd 'cat /proc/interrupts'
-run_cmd 'cat /var/log/messages'
 run_cmd 'dmesg'
 run_cmd 'dmesg -l emerg'
 run_cmd 'dmesg -l alert'
@@ -217,9 +205,8 @@ run_cmd 'dmesg -f auth'
 run_cmd 'dmesg -f syslog'
 run_cmd 'dmesg -f lpr'
 run_cmd 'dmesg -f news'
-run_cmd 'journalctl'
 
-# block
+## block
 run_cmd 'lsblk'
 run_cmd 'lsblk -p'
 run_cmd 'lsblk -d'
@@ -227,7 +214,7 @@ run_cmd 'lsblk -d -p'
 run_cmd 'df -k'
 run_cmd 'fdisk -l'
 
-# network
+## network
 run_cmd 'ifconfig -a'
 run_cmd 'ethtool eth0'
 run_cmd 'ethtool -a eth0'
@@ -271,7 +258,7 @@ run_cmd 'cat /etc/hosts'
 run_cmd 'ping -c 1 8.8.8.8'
 run_cmd 'ping6 -c 1 2001:4860:4860::8888'
 
-# cloud-init
+## cloud-init
 run_cmd 'cat /var/log/cloud-init.log'
 run_cmd 'cat /var/log/cloud-init-output.log'
 run_cmd 'service cloud-init status'
@@ -280,10 +267,10 @@ run_cmd 'service cloud-config status'
 run_cmd 'service cloud-final status'
 run_cmd 'systemctl status cloud-{init,init-local,config,final}'
 
-# selinux
+## selinux
 run_cmd 'getenforce'
 
-# others
+## others
 run_cmd 'cat /proc/buddyinfo'
 run_cmd 'cat /proc/cgroups'
 run_cmd 'cat /proc/cmdline'
@@ -319,6 +306,21 @@ run_cmd 'cat /proc/timer_stats'
 run_cmd 'cat /proc/vmallocinfo'
 run_cmd 'cat /proc/vmstat'
 
+## boot
+# Waiting for Bootup finished
+while [[ "$(sudo systemd-analyze time 2>&1)" =~ "Bootup is not yet finished" ]]; do
+	echo "[$(date)] Bootup is not yet finished." >> $joblog
+	sleep 2s
+done
+run_cmd 'systemd-analyze time'
+run_cmd 'systemd-analyze blame'
+run_cmd 'systemd-analyze critical-chain'
+run_cmd 'systemd-analyze dot'
+run_cmd 'systemctl'
+run_cmd 'cat /var/log/messages'
+run_cmd 'journalctl'
+
+# Finish
 echo -e "\nLog files have been generated in \"$base\";"
 echo -e "More details can be found in \"$joblog\"."
 
