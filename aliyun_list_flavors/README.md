@@ -27,5 +27,17 @@ cn-qingdao-c,ecs.ic5.xlarge,Available
 cn-qingdao-c,ecs.re4.40xlarge,Available
 ```
 
+```
+$ ./list_flavors.py | grep ecs.ebmg5s.24xlarge
+cn-beijing-g,ecs.ebmg5s.24xlarge,Available
+cn-beijing-f,ecs.ebmg5s.24xlarge,Available
+cn-hangzhou-i,ecs.ebmg5s.24xlarge,Available
+cn-shanghai-g,ecs.ebmg5s.24xlarge,Available
+cn-shanghai-f,ecs.ebmg5s.24xlarge,Available
+cn-shanghai-e,ecs.ebmg5s.24xlarge,Available
+cn-shenzhen-e,ecs.ebmg5s.24xlarge,Available
+ap-southeast-1c,ecs.ebmg5s.24xlarge,Available
+```
+
 Enjoy it!
 
