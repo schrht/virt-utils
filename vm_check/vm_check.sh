@@ -30,6 +30,7 @@
 # v2.16    2019-02-15  charles.shih  Remove command cat /proc/kallsyms
 # v2.17    2019-04-15  charles.shih  Add some commands for SELinux
 # v2.17.1  2019-07-05  charles.shih  Adjust the commands order
+# v2.17.2  2019-07-06  charles.shih  Fix a minor problem
 
 # Notes:
 # On AWS the default user is ec2-user and it is an sudoer without needing a password;
@@ -94,7 +95,7 @@ export PATH=$PATH:/usr/local/sbin:/usr/sbin
 if [ -z "$1" ]; then
 	inst_type=$(show_inst_type)
 	time_stamp=$(date +%Y%m%d%H%M%S)
-	base="$HOME/workspace/log/vm_check_${inst_type:=unknown}_${time_stamp=random$$}"
+	base="$HOME/workspace/log/vm_check_${inst_type:=unknown}_${time_stamp:=random$$}"
 else
 	base="$1"
 fi
