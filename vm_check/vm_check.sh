@@ -32,6 +32,7 @@
 # v2.17.1  2019-07-05  charles.shih  Adjust the commands order
 # v2.17.2  2019-07-06  charles.shih  Fix a minor problem
 # v2.18    2019-08-20  charles.shih  Add vulnerablilities files check
+# v2.18.1  2019-09-20  charles.shih  Bugfix for vulnerablilities files check
 
 # Notes:
 # On AWS the default user is ec2-user and it is an sudoer without needing a password;
@@ -307,7 +308,11 @@ run_cmd 'cat /proc/timer_list'
 run_cmd 'cat /proc/timer_stats'
 run_cmd 'cat /proc/vmallocinfo'
 run_cmd 'cat /proc/vmstat'
-run_cmd 'grep ^ /sys/devices/system/cpu/vulnerabilities/*'
+
+# Vulnerablilities files check
+for file in $(ls /sys/devices/system/cpu/vulnerabilities/*); do
+	run_cmd "grep ^ $file"
+done
 
 ## boot
 # Waiting for Bootup finished
