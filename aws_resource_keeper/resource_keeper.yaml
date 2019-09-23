@@ -1,0 +1,16 @@
+AwsResourceCollector:
+  "RegionList": ""
+  "KeynameList":
+    - "cheshi"
+    - "xiliang"
+    - "linl"
+
+AwsResourceReporter:
+  "SmtpServer": "smtp.corp.redhat.com"
+  "SmtpPort": "25"
+  "SmtpUser": ""
+  "SmtpPass": ""
+  "Sender": "do-not-reply@redhat.com"
+  "Receivers":
+    - "cheshi@redhat.com"
+  "EmailSubject": "AWS Resource Report"

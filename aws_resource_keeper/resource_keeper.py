@@ -17,6 +17,7 @@ v1.5.3  2018-07-02  charles.shih  Modify the output words
 v1.6    2018-07-02  charles.shih  Read ./arkeeper.yaml first
 v1.6.1  2018-07-02  charles.shih  Redesign the level of problems
 v2.0    2019-09-23  charles.shih  Convert to Python3 code
+v2.1    2019-09-23  charles.shih  Rename arkeeper to resource_keeper
 """
 
 import boto3
@@ -40,10 +41,10 @@ class AwsResourceCollector():
     def __init__(self):
         """Read user configuration from yaml file."""
         try:
-            if os.path.exists('./arkeeper.yaml'):
-                config_file = './arkeeper.yaml'
+            if os.path.exists('./resource_keeper.yaml'):
+                config_file = './resource_keeper.yaml'
             else:
-                config_file = os.path.expanduser('~/.arkeeper.yaml')
+                config_file = os.path.expanduser('~/.resource_keeper.yaml')
 
             with open(config_file, 'r') as f:
                 yaml_dict = yaml.full_load(f)
@@ -156,10 +157,10 @@ class AwsResourceReporter():
     def __init__(self):
         """Read user configuration."""
         try:
-            if os.path.exists('./arkeeper.yaml'):
-                config_file = './arkeeper.yaml'
+            if os.path.exists('./resource_keeper.yaml'):
+                config_file = './resource_keeper.yaml'
             else:
-                config_file = os.path.expanduser('~/.arkeeper.yaml')
+                config_file = os.path.expanduser('~/.resource_keeper.yaml')
 
             with open(config_file, 'r') as f:
                 yaml_dict = yaml.full_load(f)
