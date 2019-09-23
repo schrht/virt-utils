@@ -3,6 +3,7 @@ AwsResourceCollector:
   "KeynameList":
     - "cheshi"
     - "xiliang"
+    - "xiliang_n"
     - "linl"
 
 AwsResourceReporter:
