@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """AWS Resource Keeper.
 
 Use this script to find unused AWS resources.
@@ -16,6 +16,7 @@ v1.5.2  2018-06-26  charles.shih  Modify the words in HTML report
 v1.5.3  2018-07-02  charles.shih  Modify the output words
 v1.6    2018-07-02  charles.shih  Read ./arkeeper.yaml first
 v1.6.1  2018-07-02  charles.shih  Redesign the level of problems
+v2.0    2019-09-23  charles.shih  Convert to Python3 code
 """
 
 import boto3
@@ -45,7 +46,7 @@ class AwsResourceCollector():
                 config_file = os.path.expanduser('~/.arkeeper.yaml')
 
             with open(config_file, 'r') as f:
-                yaml_dict = yaml.load(f)
+                yaml_dict = yaml.full_load(f)
 
             if self.__class__.__name__ in yaml_dict:
                 user_config = yaml_dict[self.__class__.__name__]
@@ -57,8 +58,8 @@ class AwsResourceCollector():
                     self.keyname_list = user_config['KeynameList']
 
         except Exception as err:
-            print 'ERROR: error while parsing "%s".' % (config_file)
-            print err
+            print('ERROR: error while parsing "%s".' % (config_file))
+            print(err)
             exit(1)
 
     def _get_available_regions(self):
@@ -92,7 +93,7 @@ class AwsResourceCollector():
         """
         instance_list = []
 
-        print 'NOTE: Scan running instance in region "%s".' % region
+        print('NOTE: Scan running instance in region "%s".' % region)
         ec2_resource = boto3.resource('ec2', region_name=region)
         running_instances = ec2_resource.instances.filter(
             Filters=[{
@@ -104,8 +105,7 @@ class AwsResourceCollector():
             if not self.keyname_list or instance.key_name in self.keyname_list:
                 # Get the "name" of instance
                 try:
-                    name = filter(lambda x: x[u'Key'] == 'Name',
-                                  instance.tags)[0][u'Value']
+                    name = [x for x in instance.tags if x['Key'] == 'Name'][0]['Value']
                 except:
                     name = 'n/a'
 
@@ -162,7 +162,7 @@ class AwsResourceReporter():
                 config_file = os.path.expanduser('~/.arkeeper.yaml')
 
             with open(config_file, 'r') as f:
-                yaml_dict = yaml.load(f)
+                yaml_dict = yaml.full_load(f)
 
             if self.__class__.__name__ in yaml_dict:
                 user_config = yaml_dict[self.__class__.__name__]
@@ -192,8 +192,8 @@ class AwsResourceReporter():
                 self.html_report = f.read()
 
         except Exception as err:
-            print 'ERROR: error while parsing "%s".' % (config_file)
-            print err
+            print('ERROR: error while parsing "%s".' % (config_file))
+            print(err)
             exit(1)
 
     def send_email(self, mail_msg='Message body...', subtype='plain'):
@@ -209,10 +209,10 @@ class AwsResourceReporter():
             if self.smtp_user and self.smtp_pass:
                 smtpObj.login(self.smtp_user, self.smtp_pass)
             smtpObj.sendmail(self.sender, self.receivers, message.as_string())
-            print 'NOTE: Email notification sent!'
+            print('NOTE: Email notification sent!')
         except smtplib.SMTPException as err:
-            print 'WARNING: error while sending email notification.'
-            print err
+            print('WARNING: error while sending email notification.')
+            print(err)
 
     def html_append(self, content):
         """Append content to the html report."""
@@ -222,8 +222,8 @@ class AwsResourceReporter():
             self.html_report = origin.replace('</body>', content + '\n</body>',
                                               1)
         except Exception as err:
-            print 'WARNING: error while appending to the html report.'
-            print err
+            print('WARNING: error while appending to the html report.')
+            print(err)
 
     def html_get_string(self):
         """Get html report as string."""
@@ -235,10 +235,10 @@ class AwsResourceReporter():
             with open(file, 'w') as f:
                 f.write(self.html_report)
         except Exception as err:
-            print 'ERROR: error while dumping html file.'
-            print err
+            print('ERROR: error while dumping html file.')
+            print(err)
 
-        print 'NOTE: html file dumpped! (%s)' % file
+        print('NOTE: html file dumpped! (%s)' % file)
 
     def html_send(self):
         """Send html report as an Email notification."""
@@ -249,7 +249,7 @@ if __name__ == "__main__":
 
     user = getpass.getuser()
     date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    print '\nNOTE: [%s] %s' % (user, date)
+    print('\nNOTE: [%s] %s' % (user, date))
 
     collector = AwsResourceCollector()
     collector.scan_all()
@@ -270,4 +270,4 @@ if __name__ == "__main__":
         reporter.html_dump()
         reporter.html_send()
     else:
-        print 'NOTE: No unused resource found.'
+        print('NOTE: No unused resource found.')
