@@ -18,6 +18,7 @@ v1.6    2018-07-02  charles.shih  Read ./arkeeper.yaml first
 v1.6.1  2018-07-02  charles.shih  Redesign the level of problems
 v2.0    2019-09-23  charles.shih  Convert to Python3 code
 v2.1    2019-09-23  charles.shih  Rename arkeeper to resource_keeper
+v2.1.1  2019-09-23  charles.shih  Update some description in report page
 """
 
 import boto3
@@ -264,9 +265,9 @@ if __name__ == "__main__":
         reporter.html_append('<h2>Running Instance</h2>')
         reporter.html_append(table)
         reporter.html_append(
-            '<h3>Search in: %s</h3>' % str.join(', ', collector.region_list))
+            '<h3>Searched in: %s</h3>' % str.join(', ', collector.region_list))
         reporter.html_append(
-            '<h3>Filter by: %s</h3>' % str.join(', ', collector.keyname_list))
+            '<h3>Filtered by: %s</h3>' % str.join(', ', collector.keyname_list))
 
         reporter.html_dump()
         reporter.html_send()
