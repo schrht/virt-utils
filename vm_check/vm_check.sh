@@ -33,6 +33,7 @@
 # v2.17.2  2019-07-06  charles.shih  Fix a minor problem
 # v2.18    2019-08-20  charles.shih  Add vulnerablilities files check
 # v2.18.1  2019-09-20  charles.shih  Bugfix for vulnerablilities files check
+# v2.19    2019-10-10  charles.shih  Add vulnerablilities files check command
 
 # Notes:
 # On AWS the default user is ec2-user and it is an sudoer without needing a password;
@@ -310,6 +311,7 @@ run_cmd 'cat /proc/vmallocinfo'
 run_cmd 'cat /proc/vmstat'
 
 # Vulnerablilities files check
+run_cmd 'ls /sys/devices/system/cpu/vulnerabilities/'
 for file in $(ls /sys/devices/system/cpu/vulnerabilities/*); do
 	run_cmd "grep ^ $file"
 done
