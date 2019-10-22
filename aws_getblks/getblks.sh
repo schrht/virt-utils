@@ -12,6 +12,7 @@
 #
 # History:
 #   v1.0     2019-10-22  charles.shih  Initial version
+#   v1.0.1   2019-10-22  charles.shih  Bugfix for a parameter issue
 
 function get_root_device() {
 	# This function looks up and returns the name of root device.
@@ -102,7 +103,7 @@ function show() {
 
 # Main
 
-[ -z "$@" ] && show_help && exit 1
+[ $# -eq 0 ] && show_help && exit 1
 
 while getopts "h?rels:" opt; do
 	case "$opt" in
