@@ -107,7 +107,7 @@ traverse() {
 			x=$(curl --connect-timeout 10 $1 2>/dev/null)
 		else
 			# For Azure
-			x=$(curl --connect-timeout 10 -H Metadata:true ${1}?api-version=2017-04-02\&format=text 2>/dev/null)
+			x=$(curl --connect-timeout 10 -H Metadata:true ${1}?api-version=2019-03-11\&format=text 2>/dev/null)
 		fi
 
 		[ $? != 0 ] && die "$LINENO: curl failed with code=$?."
@@ -123,7 +123,7 @@ traverse() {
 		x=$(curl --connect-timeout 10 $root 2>/dev/null)
 	else
 		# For Azure
-		x=$(curl --connect-timeout 10 -H Metadata:true ${root}?api-version=2017-04-02\&format=text 2>/dev/null)
+		x=$(curl --connect-timeout 10 -H Metadata:true ${root}?api-version=2019-03-11\&format=text 2>/dev/null)
 	fi
 
 	[ $? != 0 ] && die "$LINENO: curl failed with code=$?."
