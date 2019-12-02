@@ -9,6 +9,7 @@
 # v1.2     2019-02-26  charles.shih  Support running on AWS
 # v1.2.1   2019-02-26  charles.shih  Move function and update comments
 # v1.3     2019-03-21  charles.shih  Support running on Huawei
+# v1.4     2019-11-27  charles.shih  Support running on Alibaba EBM
 
 debug() { [ ! -z $DEBUG ] && echo "DEBUGINFO: $@"; }
 
@@ -32,7 +33,8 @@ determine_cloud_provider() {
 	dmesg | grep -q " DMI: Microsoft Corporation Virtual Machine" && cloud=azure && return 0
 
 	# Alibaba
-	dmesg | grep -q " DMI: Alibaba Cloud" && cloud=alibaba && return 0
+	dmesg | grep -q " DMI: Alibaba Cloud" && cloud=alibaba && return 0		# Non-EBM
+	dmesg | grep -q " DMI: Alibaba Alibaba Cloud" && cloud=alibaba && return 0	# EBM
 
 	# Huawei (to be done in a better way)
 	dmesg | grep -q " DMI: OpenStack Foundation OpenStack" && cloud=huawei && return 0
