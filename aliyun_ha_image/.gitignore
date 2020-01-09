@@ -1,0 +1,5 @@
+*.qcow2
+*.qcow2.origin
+mycert
+mycert.pub
+notes.txt
