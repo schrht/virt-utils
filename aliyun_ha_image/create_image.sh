@@ -31,25 +31,33 @@ fi
 ws=/tmp/images/$image_label
 mkdir -p $ws
 
-sudo cp -i ${image_file}.origin $ws/$image_file
 
 if [ sudo virsh list | grep -q $image_lable ]; then
 	echo -e "\nThe VM is already running, skip modifying the image."
+	exit 1
 fi
+
+# Deploy image
+sudo cp -i ${image_file}.origin $ws/$image_file
+
+# Modify root password if specified
 if [ ! -z "$ROOT_PASSWD" ]; then
 	sudo virt-customize -a $ws/$image_file --root-password password:$ROOT_PASSWD
 fi
+
+# Add authorized_keys
 [ ! -e mycert.pub ] && ssh-keygen -t rsa -N "" -f mycert -q
 sudo virt-customize -a $ws/$image_file --ssh-inject root:file:mycert.pub
 sudo virt-customize -a $ws/$image_file --selinux-relabel
 
+# Deploy and start the VM
 cp template.xml $ws/template.xml
 sed -i "s#INSTANCE_NAME#$image_label#" $ws/template.xml
 sed -i "s#IMAGE_FILE#$ws/$image_file#" $ws/template.xml
-
 sudo virsh define $ws/template.xml
 sudo virsh start $image_label
 
+# Get VM's IP ADDR
 echo -e "\nGet VM's MAC ADDR..."
 vm_mac=$(sudo virsh dumpxml RHEL-8.2.0-Beta-1.0 | grep "mac address=" | awk -F "'" '{print $2}')
 for i in {1..5}; do
@@ -58,7 +66,9 @@ for i in {1..5}; do
 	vm_ip=$(arp | grep $vm_mac | awk '{print $1}')
 	[ ! -z "$vm_ip" ] && break
 done
+[ -z "$vm_ip" ] && echo -e "\nFailed to get VM's IP ADDR, exit." && exit 1
 
+# Login
 ssh_opts="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 ssh $ssh_opts -i ./mycert root@$vm_ip 
 
