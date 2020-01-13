@@ -28,7 +28,7 @@ fi
 image_file=$(basename $image_url)
 image_label=$(echo $image_url | sed 's#^.*/\(.*\)/compose.*$#\1#')
 repo_baseos=$(dirname $image_url | sed 's#/images$#/os#')
-repo_appstream=$(echo $image_repo_baseos | sed 's#/BaseOS/#/AppStream/#')
+repo_appstream=$(echo $repo_baseos | sed 's#/BaseOS/#/AppStream/#')
 workspace=${2:-"/var/lib/libvirt/images"}/$image_label
 
 # Let user confirm the information
@@ -52,7 +52,7 @@ if [ ! -e ${image_file}.origin ]; then
 	md5sum -c ${image_file}.MD5SUM || exit 1
 	cp $image_file ${image_file}.origin
 else
-	cp ${image_file}.origin $image_file
+	cp -i ${image_file}.origin $image_file
 fi
 
 # Export varibles
