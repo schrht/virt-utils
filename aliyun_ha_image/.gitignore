@@ -1,6 +1,8 @@
 *.qcow2
 *.qcow2.origin
+*.qcow2.MD5SUM
 mycert
 mycert.pub
 notes.txt
-config.txt
+platform-test/
+linus/
