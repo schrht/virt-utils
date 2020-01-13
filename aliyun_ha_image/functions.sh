@@ -19,9 +19,6 @@
 
 source ./config.txt
 
-# Get sudo access
-sudo bash -c : || return 1
-
 function download_image() {
 	# Description:
 	#   Parse image URL and download the image from internal file server.
@@ -79,7 +76,7 @@ function download_image() {
 		md5sum -c ${image_file}.MD5SUM || return 1
 		cp $image_file ${image_file}.origin
 	else
-		sudo cp -i ${image_file}.origin $image_file
+		cp -i ${image_file}.origin $image_file
 	fi
 
 	popd >/dev/null
@@ -109,21 +106,21 @@ function process_image() {
 	[ -z "$repo_appstream" ] && echo "\$repo_appstream cannot be empty." && return 1
 
 	# Check utilities
-	sudo virt-customize -V >/dev/null || return 1
+	virt-customize -V >/dev/null || return 1
 
 	# Modify root password if configured
 	if [ ! -z "$ROOT_PASSWD" ]; then
 		echo -e "Setting root password..."
-		sudo virt-customize -a $workspace/$image_file --root-password password:$ROOT_PASSWD
+		virt-customize -a $workspace/$image_file --root-password password:$ROOT_PASSWD
 	fi
 
 	# Set authorized key
 	echo -e "Setting authorized key..."
 	if [ ! -z "$PUBKEY_FILE" ] && [ -e $PUBKEY_FILE ]; then
-		sudo virt-customize -a $workspace/$image_file --ssh-inject root:file:$PUBKEY_FILE
+		virt-customize -a $workspace/$image_file --ssh-inject root:file:$PUBKEY_FILE
 	else
 		[ ! -e mycert.pub ] && ssh-keygen -t rsa -N "" -f mycert -q
-		sudo virt-customize -a $workspace/$image_file --ssh-inject root:file:mycert.pub
+		virt-customize -a $workspace/$image_file --ssh-inject root:file:mycert.pub
 	fi
 
 	# Setup dnf repo
@@ -131,11 +128,11 @@ function process_image() {
 	cp rhel.repo $workspace/
 	sed -i "s#IMAGE_REPO_BASEOS#$repo_baseos#" $workspace/rhel.repo
 	sed -i "s#IMAGE_REPO_APPSTREAM#$repo_appstream#" $workspace/rhel.repo
-	sudo virt-customize -a $workspace/$image_file --copy-in $workspace/rhel.repo:/etc/yum.repos.d/
+	virt-customize -a $workspace/$image_file --copy-in $workspace/rhel.repo:/etc/yum.repos.d/
 
 	# Reset SELinux label
 	echo -e "Resetting SELinux label..."
-	sudo virt-customize -a $workspace/$image_file --selinux-relabel
+	virt-customize -a $workspace/$image_file --selinux-relabel
 
 	return 0
 }
@@ -156,6 +153,9 @@ function start_vm() {
 	[ -z "$workspace" ] && echo "\$workspace cannot be empty." && return 1
 	[ -z "$image_file" ] && echo "\$image_file cannot be empty." && return 1
 	[ -z "$image_label" ] && echo "\$image_label cannot be empty." && return 1
+
+	# Get sudo access
+	sudo bash -c : || return 1
 
 	# Check utilities
 	sudo virsh --version >/dev/null || return 1
@@ -218,11 +218,11 @@ function customize_ha_image() {
 	[ -z "$image_file" ] && echo "\$image_file cannot be empty." && return 1
 
 	# Check utilities
-	sudo virt-customize -V >/dev/null || return 1
+	virt-customize -V >/dev/null || return 1
 
 	# Enlarge the image
 	echo -e "Enlarge the image..."
-	local fsize=$(ls -l $image_file | awk '{print $5}')
+	local fsize=$(ls -l $workspace/$image_file | awk '{print $5}')
 	if [ "$fsize" -lt "$((20 * 1024 * 1024 * 1024))" ]; then
 		qemu-img create -f qcow2 -o preallocation=metadata $workspace/newdisk.qcow2 20G || return 1
 		virt-resize --expand /dev/sda1 $workspace/$image_file $workspace/newdisk.qcow2 || return 1
@@ -231,11 +231,16 @@ function customize_ha_image() {
 
 	# Install packages
 	echo -e "Install packages..."
-	sudo virt-customize -a $workspace/$image_file --commands-from-file ./ha_customize.txt
+	for package in $(cat ./ha_packages.txt); do
+		virt-customize -a $workspace/$image_file --install $package
+	done
+
+	# HA Customize
+	#virt-customize -a $workspace/$image_file --commands-from-file ./ha_customize.txt
 
 	# Reset SELinux label
 	echo -e "Resetting SELinux label..."
-	sudo virt-customize -a $workspace/$image_file --selinux-relabel
+	virt-customize -a $workspace/$image_file --selinux-relabel
 
 	return 0
 }
