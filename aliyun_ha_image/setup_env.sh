@@ -7,8 +7,13 @@ libvirt
 libvirt-client
 "
 
-for pack in $packages; do
-	rpm -qa $pack || sudo dnf install -y $pack
+for name in $packages; do
+	x=$(rpm -qa $name 2>/dev/null)
+	if [ "$?" = "0" ]; then
+		echo "Package $name has been installed (${x})."
+	else
+		sudo dnf install -y $name
+	fi
 done
 
 exit 0
