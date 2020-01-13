@@ -221,16 +221,34 @@ function customize_ha_image() {
 	virt-customize -V >/dev/null || return 1
 
 	# Enlarge the image
-	echo -e "Enlarge the image..."
+	echo -e "\nEnlarge the image..."
 	local fsize=$(ls -l $workspace/$image_file | awk '{print $5}')
 	if [ "$fsize" -lt "$((20 * 1024 * 1024 * 1024))" ]; then
 		qemu-img create -f qcow2 -o preallocation=metadata $workspace/newdisk.qcow2 20G || return 1
 		virt-resize --expand /dev/sda1 $workspace/$image_file $workspace/newdisk.qcow2 || return 1
 		mv -f $workspace/newdisk.qcow2 $workspace/$image_file || return 1
+	else
+		echo -e "Already enlarged to 20GiB, skip this operation."
 	fi
 
+	# Place git repos into the image
+	echo -e "\nPlacing git repos..."
+	if [ ! -e "./platform-test" ]; then
+		git clone git://git.engineering.redhat.com/users/darcari/platform-test.git || return 1
+	fi
+	if [ ! -e "./linus" ]; then
+		git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git linus || return 1
+	fi
+	read -t 10 -p "Do you want to run 'git pull' for repo \"platform-test\" [y/N]? " answer
+	[ "$answer" = "y" ] && bash -c "cd ./platform-test && git pull" || echo
+	read -t 10 -p "Do you want to run 'git pull' for repo \"linus\" [y/N]? " answer
+	[ "$answer" = "y" ] && bash -c "cd ./linus && git pull" || echo
+
+	virt-customize -a $workspace/$image_file --copy-in ./platform-test:/root/
+	#virt-customize -a $workspace/$image_file --copy-in ./linus:/root/
+
 	# Install packages
-	echo -e "Install packages..."
+	echo -e "\nInstall packages..."
 	for package in $(cat ./ha_packages.txt); do
 		virt-customize -a $workspace/$image_file --install $package
 	done
@@ -239,7 +257,7 @@ function customize_ha_image() {
 	#virt-customize -a $workspace/$image_file --commands-from-file ./ha_customize.txt
 
 	# Reset SELinux label
-	echo -e "Resetting SELinux label..."
+	echo -e "\nResetting SELinux label..."
 	virt-customize -a $workspace/$image_file --selinux-relabel
 
 	return 0
