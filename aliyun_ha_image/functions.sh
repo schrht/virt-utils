@@ -71,7 +71,7 @@ function download_image() {
 
 	# Download the image
 	mkdir -p $workspace
-	pushd $workspace || return 1
+	pushd $workspace >/dev/null || return 1
 
 	if [ ! -e ${image_file}.origin ]; then
 		wget $image_url
@@ -79,10 +79,10 @@ function download_image() {
 		md5sum -c ${image_file}.MD5SUM || return 1
 		cp $image_file ${image_file}.origin
 	else
-		cp -i ${image_file}.origin $image_file
+		sudo cp -i ${image_file}.origin $image_file
 	fi
 
-	popd
+	popd >/dev/null
 
 	return 0
 }
@@ -140,9 +140,9 @@ function process_image() {
 	return 0
 }
 
-function run_vm() {
+function start_vm() {
 	# Description:
-	#   Deploy and run VM with the image for advanced procedure.
+	#   Deploy and start VM with the image for advanced procedure.
 	#
 	# Inputs:
 	#   workspace
@@ -198,6 +198,44 @@ function run_vm() {
 	echo -e "\nRun the following commands to remove the VM after using:"
 	echo -e "sudo virsh shutdown $image_label"
 	echo -e "sudo virsh undefine $image_label"
+
+	return 0
+}
+
+function customize_ha_image() {
+	# Description:
+	#   Do additional customization for HA usage (after general processing).
+	#
+	# Inputs:
+	#   workspace
+	#   image_file
+	#
+	# Outputs:
+	#   n/a
+
+	# Check varibles
+	[ -z "$workspace" ] && echo "\$workspace cannot be empty." && return 1
+	[ -z "$image_file" ] && echo "\$image_file cannot be empty." && return 1
+
+	# Check utilities
+	sudo virt-customize -V >/dev/null || return 1
+
+	# Enlarge the image
+	echo -e "Enlarge the image..."
+	local fsize=$(ls -l $image_file | awk '{print $5}')
+	if [ "$fsize" -lt "$((20 * 1024 * 1024 * 1024))" ]; then
+		qemu-img create -f qcow2 -o preallocation=metadata $workspace/newdisk.qcow2 20G || return 1
+		virt-resize --expand /dev/sda1 $workspace/$image_file $workspace/newdisk.qcow2 || return 1
+		mv -f $workspace/newdisk.qcow2 $workspace/$image_file || return 1
+	fi
+
+	# Install packages
+	echo -e "Install packages..."
+	sudo virt-customize -a $workspace/$image_file --commands-from-file ./ha_customize.txt
+
+	# Reset SELinux label
+	echo -e "Resetting SELinux label..."
+	sudo virt-customize -a $workspace/$image_file --selinux-relabel
 
 	return 0
 }
