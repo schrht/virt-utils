@@ -17,7 +17,7 @@
 # History:
 #   v1.0  2020-01-13  charles.shih  Init version
 
-source ./config.txt
+#source ./config.txt
 
 function download_image() {
 	# Description:
@@ -245,11 +245,15 @@ function customize_ha_image() {
 	[ "$answer" = "y" ] && bash -c "cd ./linus && git pull" || echo
 
 	virt-customize -a $workspace/$image_file --copy-in ./platform-test:/root/
-	#virt-customize -a $workspace/$image_file --copy-in ./linus:/root/
+	virt-customize -a $workspace/$image_file --copy-in ./linus:/root/
 
 	# Install packages
 	echo -e "\nInstall packages..."
+	local total=$(cat ./ha_packages.txt | wc -l)
+	local num=0
 	for package in $(cat ./ha_packages.txt); do
+		num=$((num+1))
+		echo "($num/$total) $package"
 		virt-customize -a $workspace/$image_file --install $package
 	done
 
