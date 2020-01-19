@@ -51,6 +51,7 @@ function download_image() {
 	# Get image info
 	image_file=$(basename $image_url)
 	image_label=$(echo $image_url | sed 's#^.*/\(.*\)/compose.*$#\1#')
+	repo_url_root=$(echo $image_url | sed 's#^\(.*\)/compose.*$#\1#')
 	repo_baseos=$(dirname $image_url | sed 's#/images$#/os#')
 	repo_appstream=$(echo $repo_baseos | sed 's#/BaseOS/#/AppStream/#')
 	workspace=${2:-"/var/lib/libvirt/images"}/$image_label
@@ -60,6 +61,7 @@ function download_image() {
 	echo -e "IMAGE URL:           $image_url"
 	echo -e "IMAGE LABEL:         $image_label"
 	echo -e "IMAGE FILE NAME:     $image_file"
+	echo -e "REPO URL(ROOT):      $repo_url_root"
 	echo -e "REPO URL(BASEOS):    $repo_baseos"
 	echo -e "REPO URL(APPSTREAM): $repo_appstream"
 	echo -e "WORKSPACE:           $workspace"
@@ -125,9 +127,8 @@ function process_image() {
 
 	# Setup dnf repo
 	echo -e "Setting up dnf repo..."
-	cp rhel.repo $workspace/
-	sed -i "s#IMAGE_REPO_BASEOS#$repo_baseos#" $workspace/rhel.repo
-	sed -i "s#IMAGE_REPO_APPSTREAM#$repo_appstream#" $workspace/rhel.repo
+	cp ./source/rhel.repo $workspace/
+	sed -i "s#{{REPO_URL_ROOT}}#$repo_url_root#" $workspace/rhel.repo
 	virt-customize -a $workspace/$image_file --copy-in $workspace/rhel.repo:/etc/yum.repos.d/
 
 	# Reset SELinux label
@@ -223,12 +224,12 @@ function customize_ha_image() {
 	# Enlarge the image
 	echo -e "\nEnlarge the image..."
 	local fsize=$(ls -l $workspace/$image_file | awk '{print $5}')
-	if [ "$fsize" -lt "$((20 * 1024 * 1024 * 1024))" ]; then
-		qemu-img create -f qcow2 -o preallocation=metadata $workspace/newdisk.qcow2 20G || return 1
+	if [ "$fsize" -lt "$((30 * 1024 * 1024 * 1024))" ]; then
+		qemu-img create -f qcow2 -o preallocation=metadata $workspace/newdisk.qcow2 30G || return 1
 		virt-resize --expand /dev/sda1 $workspace/$image_file $workspace/newdisk.qcow2 || return 1
 		mv -f $workspace/newdisk.qcow2 $workspace/$image_file || return 1
 	else
-		echo -e "Already enlarged to 20GiB, skip this operation."
+		echo -e "Already enlarged to 30GiB, skip this operation."
 	fi
 
 	# Place git repos into the image
@@ -244,18 +245,18 @@ function customize_ha_image() {
 	read -t 10 -p "Do you want to run 'git pull' for repo \"linus\" [y/N]? " answer
 	[ "$answer" = "y" ] && bash -c "cd ./linus && git pull" || echo
 
-	virt-customize -a $workspace/$image_file --copy-in ./platform-test:/root/
-	virt-customize -a $workspace/$image_file --copy-in ./linus:/root/
+	#virt-customize -a $workspace/$image_file --copy-in ./platform-test:/root/
+	#virt-customize -a $workspace/$image_file --copy-in ./linus:/root/
 
 	# Install packages
-	echo -e "\nInstall packages..."
-	local total=$(cat ./ha_packages.txt | wc -l)
-	local num=0
-	for package in $(cat ./ha_packages.txt); do
-		num=$((num+1))
-		echo "($num/$total) $package"
-		virt-customize -a $workspace/$image_file --install $package
-	done
+	#echo -e "\nInstall packages..."
+	#local total=$(cat ./ha_packages.txt | wc -l)
+	#local num=0
+	#for package in $(cat ./ha_packages.txt); do
+	#	num=$((num+1))
+	#	echo "($num/$total) $package"
+	#	virt-customize -a $workspace/$image_file --install $package
+	#done
 
 	# HA Customize
 	#virt-customize -a $workspace/$image_file --commands-from-file ./ha_customize.txt
@@ -266,3 +267,4 @@ function customize_ha_image() {
 
 	return 0
 }
+
