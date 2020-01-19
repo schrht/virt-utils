@@ -85,7 +85,7 @@ sudo virsh start $image_label
 
 # Get VM's IP ADDR
 echo -e "Get VM's MAC ADDR..."
-vm_mac=$(sudo virsh dumpxml RHEL-8.2.0-Beta-1.0 | grep "mac address=" | awk -F "'" '{print $2}')
+vm_mac=$(sudo virsh dumpxml $image_label | grep "mac address=" | awk -F "'" '{print $2}')
 for i in {1..5}; do
 	echo -e "Get VM's IP ADDR, attempting $i..."
 	sleep 10
