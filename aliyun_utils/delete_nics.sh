@@ -11,6 +11,8 @@
 # v1.0    2018-12-24  charles.shih  Init version
 # v1.1    2018-12-26  charles.shih  Add PageSize to query full list
 # v1.1.1  2018-12-29  charles.shih  Fix a bug for checking $nic_list
+# v1.2    2020-04-15  charles.shih  Support searching all NICs
+# v1.3    2020-04-22  charles.shih  Delete the NICs in parallel
 
 region=${1:-"cn-beijing"}
 nic_name=${2:-"avocado_cloud_nic_d00"}
@@ -30,8 +32,10 @@ echo -e "Found $(echo $nic_list | wc -w) NICs.\n"
 
 for nic_id in $nic_list; do
 	echo -e "Deleting NIC $nic_id..."
-	aliyun ecs DeleteNetworkInterface --RegionId $region --NetworkInterfaceId $nic_id
+	aliyun ecs DeleteNetworkInterface --RegionId $region --NetworkInterfaceId $nic_id &
 done
+
+wait
 
 echo -e "\nRun this script again to make sure the deletion is successful."
 
