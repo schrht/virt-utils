@@ -13,12 +13,18 @@
 # v1.1.1  2018-12-29  charles.shih  Fix a bug for checking $nic_list
 
 region=${1:-"cn-beijing"}
-nic_name=${2:-"avocado_cloud_nic_d1"}
+nic_name=${2:-"avocado_cloud_nic_d00"}
 
 echo -e "\nLooking up NICs named \"$nic_name\" from \"$region\"..."
-x=$(aliyun ecs DescribeNetworkInterfaces --RegionId $region --NetworkInterfaceName $nic_name --PageSize 50)
+if [ "$nic_name" != "all" ]; then
+	x=$(aliyun ecs DescribeNetworkInterfaces --RegionId $region --NetworkInterfaceName $nic_name --PageSize 500)
+else
+	x=$(aliyun ecs DescribeNetworkInterfaces --RegionId $region --PageSize 500)
+fi
 [ $? != 0 ] && echo $x && exit 1
-nic_list=$(echo $x| jq -r '.NetworkInterfaceSets.NetworkInterfaceSet[].NetworkInterfaceId')
+echo "Try to delete:"
+echo $x | jq -r '.NetworkInterfaceSets.NetworkInterfaceSet[].NetworkInterfaceName' | sort | uniq -c
+nic_list=$(echo $x | jq -r '.NetworkInterfaceSets.NetworkInterfaceSet[].NetworkInterfaceId')
 echo -e "Found $(echo $nic_list | wc -w) NICs.\n"
 [ -z "$nic_list" ] && exit 0
 

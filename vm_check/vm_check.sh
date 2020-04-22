@@ -34,6 +34,7 @@
 # v2.18    2019-08-20  charles.shih  Add vulnerablilities files check
 # v2.18.1  2019-09-20  charles.shih  Bugfix for vulnerablilities files check
 # v2.19    2019-10-10  charles.shih  Add vulnerablilities files check command
+# v2.20    2020-03-03  charles.shih  Add dmidecode command
 
 # Notes:
 # On AWS the default user is ec2-user and it is an sudoer without needing a password;
@@ -129,6 +130,7 @@ run_cmd 'cat /etc/redhat-release'
 run_cmd 'cat /etc/issue'
 
 ## bios and hardware
+run_cmd 'dmidecode'
 run_cmd 'dmidecode -t bios'
 run_cmd 'lspci'
 run_cmd 'lspci -v'
