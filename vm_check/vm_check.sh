@@ -35,6 +35,7 @@
 # v2.18.1  2019-09-20  charles.shih  Bugfix for vulnerablilities files check
 # v2.19    2019-10-10  charles.shih  Add vulnerablilities files check command
 # v2.20    2020-03-03  charles.shih  Add dmidecode command
+# v2.21    2020-05-21  charles.shih  Add command 'systemctl status'
 
 # Notes:
 # On AWS the default user is ec2-user and it is an sudoer without needing a password;
@@ -154,7 +155,6 @@ run_cmd 'uptime'
 run_cmd 'top -b -n 1'
 run_cmd 'bash -c set'
 run_cmd 'env'
-run_cmd 'systemctl'
 run_cmd 'vmstat 3 1'
 run_cmd 'vmstat -m'
 run_cmd 'vmstat -a'
@@ -329,6 +329,7 @@ run_cmd 'systemd-analyze blame'
 run_cmd 'systemd-analyze critical-chain'
 run_cmd 'systemd-analyze dot'
 run_cmd 'systemctl'
+run_cmd 'systemctl status'
 run_cmd 'cat /var/log/messages'
 run_cmd 'journalctl'
 
