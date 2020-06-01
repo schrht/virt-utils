@@ -37,6 +37,7 @@
 # v2.20    2020-03-03  charles.shih  Add dmidecode command
 # v2.21    2020-05-21  charles.shih  Add command 'systemctl status'
 # v2.22    2020-05-28  charles.shih  Add some commands for cloud-init
+# v2.23    2020-06-01  charles.shih  Update commands for cloud-init
 
 # Notes:
 # On AWS the default user is ec2-user and it is an sudoer without needing a password;
@@ -268,14 +269,17 @@ run_cmd 'ping6 -c 1 2001:4860:4860::8888'
 ## cloud-init
 run_cmd 'cat /var/log/cloud-init.log'
 run_cmd 'cat /var/log/cloud-init-output.log'
-run_cmd 'service cloud-init status'
 run_cmd 'service cloud-init-local status'
+run_cmd 'service cloud-init status'
 run_cmd 'service cloud-config status'
 run_cmd 'service cloud-final status'
-run_cmd 'systemctl status cloud-{init,init-local,config,final}'
+run_cmd 'systemctl status cloud-{init-local,init,config,final}'
 run_cmd 'cloud-init analyze show'
 run_cmd 'cloud-init analyze blame'
 run_cmd 'cloud-init analyze boot'
+run_cmd 'cat /var/run/cloud-init/status.json'
+run_cmd 'cat /var/run/cloud-init/instance-data.json'
+run_cmd 'cat /var/run/cloud-init/ds-identify.log'
 
 ## selinux
 run_cmd 'getenforce'
