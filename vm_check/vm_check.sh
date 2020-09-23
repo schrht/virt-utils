@@ -41,6 +41,7 @@
 # v2.23.1  2020-07-30  charles.shih  Bugfix on cloud-init command
 # v2.24    2020-07-30  charles.shih  Add commands for memory
 # v2.25    2020-08-19  charles.shih  Add commands for other Linux distros
+# v2.26    2020-09-23  charles.shih  Add sysctl command
 
 # Notes:
 # On AWS the default user is ec2-user and it is an sudoer without needing a password;
@@ -219,6 +220,7 @@ run_cmd 'dmesg -f auth'
 run_cmd 'dmesg -f syslog'
 run_cmd 'dmesg -f lpr'
 run_cmd 'dmesg -f news'
+run_cmd 'sysctl -a'
 
 ## block
 run_cmd 'lsblk'
