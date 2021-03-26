@@ -154,6 +154,7 @@ run_cmd 'yum repoinfo'
 run_cmd 'yum repoinfo all'
 run_cmd 'subscription-manager list --available'
 run_cmd 'subscription-manager list --consumed'
+run_cmd 'grep ^ /etc/yum.repos.d/*'
 
 ## kernel
 run_cmd 'lsmod'
