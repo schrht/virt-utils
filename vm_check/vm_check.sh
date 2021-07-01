@@ -42,6 +42,7 @@
 # v2.24    2020-07-30  charles.shih  Add commands for memory
 # v2.25    2020-08-19  charles.shih  Add commands for other Linux distros
 # v2.26    2020-09-23  charles.shih  Add sysctl command
+# v2.27    2020-09-23  charles.shih  Add EFI check command
 
 # Notes:
 # On AWS the default user is ec2-user and it is an sudoer without needing a password;
@@ -145,6 +146,7 @@ run_cmd 'lspci'
 run_cmd 'lspci -v'
 run_cmd 'lspci -vv'
 run_cmd 'lspci -vvv'
+run_cmd 'ls -d /sys/firmware/efi'
 
 ## package
 run_cmd 'rpm -qa'
