@@ -42,7 +42,8 @@
 # v2.24    2020-07-30  charles.shih  Add commands for memory
 # v2.25    2020-08-19  charles.shih  Add commands for other Linux distros
 # v2.26    2020-09-23  charles.shih  Add sysctl command
-# v2.27    2020-09-23  charles.shih  Add EFI check command
+# v2.27    2021-07-01  charles.shih  Add EFI check command
+# v2.28    2021-07-01  charles.shih  Add Aliyun image-id check command
 
 # Notes:
 # On AWS the default user is ec2-user and it is an sudoer without needing a password;
@@ -342,6 +343,10 @@ for file in $(ls /sys/devices/system/cpu/vulnerabilities/*); do
 	run_cmd "grep ^ $file"
 done
 
+## specified collection
+# Aliyun RHEL image
+run_cmd 'cat /etc/image-id'
+
 ## boot
 # Waiting for Bootup finished
 while [[ "$(sudo systemd-analyze time 2>&1)" =~ "Bootup is not yet finished" ]]; do
@@ -362,4 +367,3 @@ echo -e "\nLog files have been generated in \"$base\";"
 echo -e "More details can be found in \"$joblog\"."
 
 exit 0
-
